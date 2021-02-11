@@ -1,0 +1,12 @@
+name: @name@
+main: @groupId@.@name@
+version: @version@
+author: @author@
+api-version: @apiVersion@
+commands:
+  dude:
+    description: Dude.
+    usage: /dude
+  get:
+    description: Get.
+    usage: /get <type> <name>
