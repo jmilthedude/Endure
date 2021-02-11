@@ -11,4 +11,8 @@ public class MathUtilities {
         if (i < 1000 && i > -1000) return getRandomInt(-30000, 30000);
         return i;
     }
+
+    public static float clamp(float value, float min, float max) {
+        return Math.min(Math.max(value, min), max);
+    }
 }
