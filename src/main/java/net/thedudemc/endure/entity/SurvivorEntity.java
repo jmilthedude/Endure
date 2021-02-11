@@ -2,6 +2,7 @@ package net.thedudemc.endure.entity;
 
 import com.google.gson.annotations.Expose;
 import net.thedudemc.endure.init.EndureConfigs;
+import net.thedudemc.endure.util.MathUtilities;
 import net.thedudemc.endure.world.data.SurvivorsData;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -12,17 +13,12 @@ import java.util.UUID;
 
 public class SurvivorEntity {
 
+    @Expose private UUID uuid;
+    @Expose private String name;
+    @Expose private int level;
+    @Expose private float thirst;
+    @Expose private float experience;
 
-    @Expose
-    private UUID uuid;
-    @Expose
-    private String name;
-    @Expose
-    private int level;
-    @Expose
-    private float thirst;
-    @Expose
-    private float experience;
     private Scoreboard hud;
 
     public SurvivorEntity(UUID uuid, int level, float thirst, float experience) {
@@ -35,10 +31,6 @@ public class SurvivorEntity {
 
     public UUID getId() {
         return uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
     }
 
     public String getName() {
@@ -74,7 +66,8 @@ public class SurvivorEntity {
     }
 
     public void setExperience(float experience) {
-        this.experience = experience;
+        this.experience = MathUtilities.clamp(experience, 0f, 1f);
+
     }
 
     public void addExperience(float experience) {
@@ -85,13 +78,11 @@ public class SurvivorEntity {
 
     public void removeExperience(float experience) {
         this.experience = Math.max(this.experience - experience, 0.0f);
+        SurvivorsData.get().markDirty();
     }
 
     public void tick() {
-        if (hud == null) setupHud();
-
-        this.addExperience(0.01f);
-        this.getPlayer().setExp(this.getExperience());
+        if (hud == null) setupHud(); // create a hud if one does not exist
 
         if (this.getPlayer().getTicksLived() % EndureConfigs.GENERAL.getHudUpdateInterval() == 0) updateHud();
     }
@@ -101,12 +92,35 @@ public class SurvivorEntity {
         Objective obj = board.registerNewObjective(this.getName(), "dummy", "Survivor HUD");
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
-        addHudLine("Level", board, obj, ChatColor.GREEN, -1, this.getLevel());
-        addHudLine("Experience", board, obj, ChatColor.AQUA, -2, getExperienceForDisplay());
+        int position = 0;
+
+        addHeader("Level", obj, ChatColor.GREEN, --position);
+        addValue("Level", board, obj, --position, this.getLevel());
+        addSpace(board, obj, --position);
+        addHeader("Experience", obj, ChatColor.AQUA, --position);
+        addValue("Experience", board, obj, --position, getExperienceForDisplay());
 
         this.hud = board;
         this.getPlayer().setScoreboard(hud);
+    }
 
+    private void addHeader(String name, Objective obj, ChatColor color, int position) {
+        Score levelHeader = obj.getScore(color + name);
+        levelHeader.setScore(position);
+    }
+
+    private void addValue(String name, Scoreboard board, Objective obj, int position, int value) {
+        Team counter = board.registerNewTeam(name);
+        counter.addEntry(ChatColor.values()[Math.abs(position)].toString());
+        counter.setPrefix(" " + ChatColor.YELLOW + value);
+        obj.getScore(ChatColor.values()[Math.abs(position)].toString()).setScore(position);
+    }
+
+    private void addSpace(Scoreboard board, Objective obj, int position) {
+        Score levelHeader = obj.getScore("---------" + ChatColor.values()[Math.abs(position)].toString());
+        levelHeader.setScore(position);
+        Team counter = board.registerNewTeam(ChatColor.values()[Math.abs(position)].toString());
+        counter.addEntry(ChatColor.values()[Math.abs(position)].toString());
     }
 
     private void updateHud() {
@@ -116,28 +130,11 @@ public class SurvivorEntity {
     }
 
     private void updateLine(String name, Scoreboard hud, int value) {
-        hud.getTeam(name).setPrefix(ChatColor.YELLOW + String.valueOf(value));
-    }
-
-    private void addHudLine(String name, Scoreboard board, Objective obj, ChatColor color, int position, int value) {
-        Score levelHeader = obj.getScore(color + name);
-        levelHeader.setScore(position);
-        Team counter = board.registerNewTeam(name);
-        counter.addEntry(ChatColor.values()[Math.abs(position)].toString());
-        counter.setPrefix(ChatColor.YELLOW + String.valueOf(value));
-        obj.getScore(ChatColor.values()[Math.abs(position)].toString()).setScore(position - 1);
+        hud.getTeam(name).setPrefix(" " + ChatColor.YELLOW + value);
     }
 
 
     public Player getPlayer() {
         return Bukkit.getPlayer(this.uuid);
-    }
-
-    public Scoreboard getHud() {
-        return this.hud == null ? Bukkit.getScoreboardManager().getNewScoreboard() : this.hud;
-    }
-
-    public void setHud(Scoreboard hud) {
-        this.hud = hud;
     }
 }
