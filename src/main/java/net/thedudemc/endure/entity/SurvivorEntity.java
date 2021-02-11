@@ -6,6 +6,8 @@ import net.thedudemc.endure.util.MathUtilities;
 import net.thedudemc.endure.world.data.SurvivorsData;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
 
@@ -112,13 +114,19 @@ public class SurvivorEntity {
     }
 
     private void calculateThirst() {
+        Player p = this.getPlayer();
+        Location location = p.getLocation();
+        Biome biome = location.getWorld().getBiome(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+        float biomeModifier = EndureConfigs.THIRST.getBiomeModifier(biome.getKey().toString());
         if (EndureConfigs.THIRST.getShouldTick()) {
             int interval = EndureConfigs.THIRST.getTickInterval();
             float percentTick = EndureConfigs.THIRST.getPercentTick();
-            if (this.getPlayer().getTicksLived() % interval == 0) decreaseThirst(percentTick / 100f);
+            if (p.getTicksLived() % interval == 0) {
+                decreaseThirst((percentTick / 100f) * biomeModifier);
+            }
         }
         if (distanceTraveled >= EndureConfigs.THIRST.getBlockDistance()) {
-            decreaseThirst(EndureConfigs.THIRST.getPercentDistance() / 100f);
+            decreaseThirst((EndureConfigs.THIRST.getPercentDistance() / 100f) * biomeModifier);
             distanceTraveled = 0D;
         }
 
