@@ -18,6 +18,7 @@ public class SurvivorEntity {
     @Expose private int level;
     @Expose private float thirst;
     @Expose private float experience;
+    @Expose private double distanceTraveled;
 
     private Scoreboard hud;
 
@@ -43,10 +44,12 @@ public class SurvivorEntity {
 
     public void setLevel(int level) {
         this.level = level;
+        markDirty();
     }
 
     public void addLevel(int amount) {
         this.level += amount;
+        markDirty();
     }
 
     public float getThirst() {
@@ -55,6 +58,20 @@ public class SurvivorEntity {
 
     public void setThirst(float thirst) {
         this.thirst = thirst;
+        markDirty();
+    }
+
+    public void addThirst(float amount) {
+        this.thirst = Math.min(thirst + amount, 1.0f);
+        if (this.thirst == 1.0f) this.distanceTraveled = 0;
+        this.getPlayer().setExp(thirst); // shows thirst level visually on exp bar
+        markDirty();
+    }
+
+    public void decreaseThirst(float amount) {
+        this.thirst = Math.max(this.thirst - amount, 0.0f);
+        this.getPlayer().setExp(thirst); // shows thirst level visually on exp bar
+        markDirty();
     }
 
     public float getExperience() {
@@ -67,24 +84,44 @@ public class SurvivorEntity {
 
     public void setExperience(float experience) {
         this.experience = MathUtilities.clamp(experience, 0f, 1f);
-
+        markDirty();
     }
 
     public void addExperience(float experience) {
         this.experience = Math.min(this.experience + experience, 1.0f);
         if (this.experience == 1.0f) this.experience = 0.0f;
-        SurvivorsData.get().markDirty();
+        markDirty();
     }
 
     public void removeExperience(float experience) {
         this.experience = Math.max(this.experience - experience, 0.0f);
-        SurvivorsData.get().markDirty();
+        markDirty();
+    }
+
+    public void addDistanceTraveled(double distance) {
+        this.distanceTraveled += distance;
+        markDirty();
     }
 
     public void tick() {
         if (hud == null) setupHud(); // create a hud if one does not exist
 
+        calculateThirst();
+
         if (this.getPlayer().getTicksLived() % EndureConfigs.GENERAL.getHudUpdateInterval() == 0) updateHud();
+    }
+
+    private void calculateThirst() {
+        if (EndureConfigs.THIRST.getShouldTick()) {
+            int interval = EndureConfigs.THIRST.getTickInterval();
+            float percentTick = EndureConfigs.THIRST.getPercentTick();
+            if (this.getPlayer().getTicksLived() % interval == 0) decreaseThirst(percentTick / 100f);
+        }
+        if (distanceTraveled >= EndureConfigs.THIRST.getBlockDistance()) {
+            decreaseThirst(EndureConfigs.THIRST.getPercentDistance() / 100f);
+            distanceTraveled = 0D;
+        }
+
     }
 
     private void setupHud() {
@@ -137,4 +174,9 @@ public class SurvivorEntity {
     public Player getPlayer() {
         return Bukkit.getPlayer(this.uuid);
     }
+
+    private void markDirty() {
+        SurvivorsData.get().markDirty();
+    }
+
 }

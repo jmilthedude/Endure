@@ -37,7 +37,7 @@ public class SurvivorsData extends Data {
     }
 
     public SurvivorEntity getSurvivor(UUID uuid) {
-        SurvivorEntity survivor = survivors.computeIfAbsent(uuid, id -> new SurvivorEntity(id, 0, 20.0f, 0.0f));
+        SurvivorEntity survivor = survivors.computeIfAbsent(uuid, id -> new SurvivorEntity(id, 0, 1.0f, 0.0f));
         markDirty();
         return survivor;
     }
