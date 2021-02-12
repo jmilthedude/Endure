@@ -3,6 +3,7 @@ package net.thedudemc.endure.init;
 import net.thedudemc.endure.Endure;
 import net.thedudemc.endure.item.EndureItem;
 import net.thedudemc.endure.item.SwordItem;
+import net.thedudemc.endure.item.EmptyBottleItem;
 import net.thedudemc.endure.item.attributes.AttributeModifier;
 import net.thedudemc.endure.item.attributes.AttributeModifier.Operation;
 import net.thedudemc.endure.util.Rarity;
@@ -18,11 +19,14 @@ public class EndureItems {
     public static HashMap<String, EndureItem> REGISTRY = new HashMap<>();
 
     public static EndureItem DINKY_SWORD;
+    public static EndureItem EMPTY_BOTTLE;
 
     public static void register() {
         DINKY_SWORD = registerItem(new SwordItem("dinky_sword", "Dinky Sword", Material.WOODEN_SWORD, Rarity.COMMON)
                 .withAttribute(EndureAttributes.BONUS_DAMAGE, new AttributeModifier("Bonus Damage", 12.0D, Operation.ADDITION))
                 .withAttribute(EndureAttributes.MAX_STACK_SIZE, new AttributeModifier("Max Stack Amount", 1.0D, Operation.ADDITION)));
+        EMPTY_BOTTLE = registerItem(new EmptyBottleItem("empty_bottle", "Empty Bottle", Material.GLASS_BOTTLE))
+                .withAttribute(EndureAttributes.MAX_STACK_SIZE, new AttributeModifier(EndureAttributes.MAX_STACK_SIZE.getDisplayName(), 1.0D, Operation.ADDITION));
     }
 
     private static EndureItem registerItem(EndureItem item) {

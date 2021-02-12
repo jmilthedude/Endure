@@ -28,11 +28,6 @@ public class WorldEvents implements Listener {
     }
 
     public static void runWorldTick() {
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(Endure.getInstance(), new Runnable() {
-            @Override
-            public void run() {
-                SurvivorsData.get().tick();
-            }
-        }, 0L, 1L);
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(Endure.getInstance(), () -> SurvivorsData.get().tick(), 0L, 1L);
     }
 }

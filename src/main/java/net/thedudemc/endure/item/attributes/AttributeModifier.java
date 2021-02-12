@@ -63,7 +63,7 @@ public class AttributeModifier {
         return "AttributeModifier{amount=" + this.amount + ", operation=" + this.operation + ", name='" + (String) this.name.get() + '\'' + ", id=" + this.id + '}';
     }
 
-    public static enum Operation {
+    public enum Operation {
         ADDITION(0),
         MULTIPLY_BASE(1),
         MULTIPLY_TOTAL(2);
@@ -71,7 +71,7 @@ public class AttributeModifier {
         private static final AttributeModifier.Operation[] VALUES = new AttributeModifier.Operation[]{ADDITION, MULTIPLY_BASE, MULTIPLY_TOTAL};
         private final int id;
 
-        private Operation(int id) {
+        Operation(int id) {
             this.id = id;
         }
 
