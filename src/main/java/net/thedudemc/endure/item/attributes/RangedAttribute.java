@@ -4,8 +4,8 @@ public class RangedAttribute extends Attribute {
     private final double minimumValue;
     private final double maximumValue;
 
-    public RangedAttribute(String attributeName, double defaultValue, double minimumValue, double maximumValue) {
-        super(attributeName, defaultValue);
+    public RangedAttribute(String attributeName, String displayName, double defaultValue, double minimumValue, double maximumValue) {
+        super(attributeName, displayName, defaultValue);
         this.minimumValue = minimumValue;
         this.maximumValue = maximumValue;
         if (minimumValue > maximumValue) {

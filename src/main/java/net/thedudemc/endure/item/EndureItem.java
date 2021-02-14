@@ -14,8 +14,9 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
-public abstract class EndureItem {
+public class EndureItem {
 
     private final String id;
     private final String displayName;
@@ -94,5 +95,18 @@ public abstract class EndureItem {
 
     public HashMap<Attribute, AttributeModifier> getAttributeModifiers() {
         return attributeModifiers;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EndureItem that = (EndureItem) o;
+        return getId().equals(that.getId()) && getMaterial() == that.getMaterial() && getRarity() == that.getRarity();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getDisplayName(), getMaterial(), getRarity());
     }
 }
