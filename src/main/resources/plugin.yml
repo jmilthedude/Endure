@@ -1,8 +1,8 @@
-name: @name@
-main: @groupId@.@name@
-version: @version@
-author: @author@
-api-version: @apiVersion@
+name: Endure
+main: net.thedudemc.endure.Endure
+version: 0.1
+author: jmilthedude
+api-version: 1.14
 commands:
   dude:
     description: Dude.
