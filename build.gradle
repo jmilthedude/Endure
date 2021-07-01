@@ -1,25 +1,28 @@
 plugins {
-	id 'java'
-	id 'eclipse'
+    id 'java'
+    id 'eclipse'
 }
 
 group 'net.thedudemc'
 version '1.16-0.1'
 
 repositories {
-	mavenCentral()
-	maven{ url "https://hub.spigotmc.org/nexus/content/repositories/snapshots" }
+    mavenCentral()
+    maven { url "https://repo1.maven.org/maven2" }
+    maven { url "https://hub.spigotmc.org/nexus/content/repositories/snapshots" }
 }
 
-dependencies {
-	implementation 'org.jetbrains:annotations:20.1.0'
 
-	compileOnly 'org.spigotmc:spigot-api:1.17-R0.1-SNAPSHOT'
+dependencies {
+    implementation 'org.jetbrains:annotations:20.1.0'
+    implementation 'net.thedudemc:dudeconfig:0.1'
+
+    compileOnly 'org.spigotmc:spigot-api:1.17-R0.1-SNAPSHOT'
 }
 
 task testJar(type: Jar) {
-	description 'Build a test Jar'
-	archiveClassifier = 'DEV'
-	from sourceSets.main.output
-	destinationDirectory = file("C:/Spigot Server/plugins")
+    description 'Build a test Jar'
+    archiveClassifier = 'DEV'
+    from sourceSets.main.output
+    destinationDirectory = file("C:/Spigot Server/plugins")
 }

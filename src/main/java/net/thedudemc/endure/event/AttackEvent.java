@@ -22,14 +22,20 @@ public class AttackEvent implements Listener {
         Player p = (Player) event.getDamager();
         ItemStack stack = p.getInventory().getItemInMainHand();
         EndureItem item = EndureItems.getItemFromStack(stack);
-        if (item == null) return;
-        AttributeModifier bonusDamage = item.getAttributeModifier(EndureAttributes.BONUS_DAMAGE);
-        if (bonusDamage != null) {
-            double value = bonusDamage.getAmount();
-            p.sendMessage(String.valueOf(event.getDamage() + value));
-            event.setDamage(event.getDamage() + value);
+        if (item != null) {
+            AttributeModifier bonusDamage = item.getAttributeModifier(EndureAttributes.BONUS_DAMAGE);
+            AttributeModifier damage = item.getAttributeModifier(EndureAttributes.BASE_DAMAGE);
+            double damageAmount = event.getDamage();
+            if (damage != null) {
+                damageAmount = damage.getAmount();
+            }
+            if (bonusDamage != null) {
+                double value = bonusDamage.getAmount();
+                damageAmount += value;
+            }
+            event.setDamage(damageAmount);
         }
-
+        p.sendMessage(String.valueOf(event.getDamage()));
     }
 
     @EventHandler
