@@ -127,10 +127,10 @@ public class SurvivorEntity {
         Location location = p.getLocation();
         Biome biome = location.getWorld().getBiome(location.getBlockX(), location.getBlockY(), location.getBlockZ());
         Config config = EndureConfigs.get("Thirst");
-        float biomeModifier = (float) config.getFloat("todo");
+        float biomeModifier = (float) config.getMap("biomeModifiers").get(biome.getKey().getKey());
         if (config.getBoolean("tickWhileStanding")) {
             int interval = config.getInt("tickInterval");
-            float percentTick = (float) config.getFloat("percentTickInterval");
+            float percentTick = config.getFloat("percentTickInterval");
             if (p.getTicksLived() % interval == 0) {
                 decreaseThirst((percentTick / 100f) * biomeModifier);
             }
