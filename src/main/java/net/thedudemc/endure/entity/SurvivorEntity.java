@@ -1,6 +1,7 @@
 package net.thedudemc.endure.entity;
 
 import com.google.gson.annotations.Expose;
+import net.thedudemc.dudeconfig.config.Config;
 import net.thedudemc.endure.init.EndureConfigs;
 import net.thedudemc.endure.util.MathUtilities;
 import net.thedudemc.endure.world.data.SurvivorsData;
@@ -15,12 +16,18 @@ import java.util.UUID;
 
 public class SurvivorEntity {
 
-    @Expose private UUID uuid;
-    @Expose private String name;
-    @Expose private int level;
-    @Expose private float thirst;
-    @Expose private float experience;
-    @Expose private double distanceTraveled;
+    @Expose
+    private UUID uuid;
+    @Expose
+    private String name;
+    @Expose
+    private int level;
+    @Expose
+    private float thirst;
+    @Expose
+    private float experience;
+    @Expose
+    private double distanceTraveled;
 
     private Scoreboard hud;
 
@@ -70,8 +77,8 @@ public class SurvivorEntity {
         markDirty();
     }
 
-    public void decreaseThirst(float amount) {
-        this.thirst = Math.max(this.thirst - amount, 0.0f);
+    public void decreaseThirst(double amount) {
+        this.thirst = (float) Math.max(this.thirst - amount, 0.0f);
         this.getPlayer().setExp(thirst); // shows thirst level visually on exp bar
         markDirty();
     }
@@ -110,23 +117,26 @@ public class SurvivorEntity {
 
         calculateThirst();
 
-        if (this.getPlayer().getTicksLived() % EndureConfigs. == 0) updateHud();
+        if (this.getPlayer().getTicksLived() % EndureConfigs.get("General").getInt("hudUpdateInterval") == 0) {
+            updateHud();
+        }
     }
 
     private void calculateThirst() {
         Player p = this.getPlayer();
         Location location = p.getLocation();
         Biome biome = location.getWorld().getBiome(location.getBlockX(), location.getBlockY(), location.getBlockZ());
-        float biomeModifier = EndureConfigs.get("ThirstConfig").getBiomeModifier(biome.getKey().toString());
-        if (EndureConfigs.get("ThirstConfig").getBoolean("tickWhileStanding")) {
-            int interval = EndureConfigs.THIRST.getTickInterval();
-            float percentTick = EndureConfigs.THIRST.getPercentTick();
+        Config config = EndureConfigs.get("Thirst");
+        float biomeModifier = (float) config.getFloat("todo");
+        if (config.getBoolean("tickWhileStanding")) {
+            int interval = config.getInt("tickInterval");
+            float percentTick = (float) config.getFloat("percentTickInterval");
             if (p.getTicksLived() % interval == 0) {
                 decreaseThirst((percentTick / 100f) * biomeModifier);
             }
         }
-        if (distanceTraveled >= EndureConfigs.THIRST.getBlockDistance()) {
-            decreaseThirst((EndureConfigs.THIRST.getPercentDistance() / 100f) * biomeModifier);
+        if (distanceTraveled >= config.getDouble("blockDistanceInterval")) {
+            decreaseThirst((config.getDouble("percentBlockDistanceInterval") / 100f) * biomeModifier);
             distanceTraveled = 0D;
         }
 
