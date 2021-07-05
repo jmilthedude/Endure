@@ -3,16 +3,15 @@ package net.thedudemc.endure.config;
 import net.thedudemc.dudeconfig.config.Config;
 import net.thedudemc.dudeconfig.config.option.OptionMap;
 
-public class GeneralConfig extends Config {
+public class TestConfig extends Config {
 
     @Override
     public String getName() {
-        return "General";
+        return "testConfig";
     }
 
     @Override
     public OptionMap getDefaults() {
         return OptionMap.create();
     }
-
 }

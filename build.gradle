@@ -1,28 +1,37 @@
 plugins {
     id 'java'
-    id 'eclipse'
 }
 
 group 'net.thedudemc'
+archivesBaseName = "endure"
 version '1.16-0.1'
 
 repositories {
     mavenCentral()
-    maven { url "https://repo1.maven.org/maven2" }
+    maven { url "https://s01.oss.sonatype.org/content/repositories/snapshots/" }
     maven { url "https://hub.spigotmc.org/nexus/content/repositories/snapshots" }
 }
 
+configurations {
+    // configuration that holds jars to include in the jar
+    extraLibs
+}
 
 dependencies {
     implementation 'org.jetbrains:annotations:20.1.0'
-    implementation 'net.thedudemc:dudeconfig:0.1'
+
+    extraLibs 'net.thedudemc:dudeconfig:0.4-SNAPSHOT'
+    configurations.implementation.extendsFrom(configurations.extraLibs)
 
     compileOnly 'org.spigotmc:spigot-api:1.17-R0.1-SNAPSHOT'
 }
 
 task testJar(type: Jar) {
     description 'Build a test Jar'
-    archiveClassifier = 'DEV'
+    archiveClassifier.set("DEV")
     from sourceSets.main.output
     destinationDirectory = file("C:/Spigot Server/plugins")
+    from {
+        configurations.extraLibs.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }

@@ -110,15 +110,15 @@ public class SurvivorEntity {
 
         calculateThirst();
 
-        if (this.getPlayer().getTicksLived() % EndureConfigs.GENERAL.getHudUpdateInterval() == 0) updateHud();
+        if (this.getPlayer().getTicksLived() % EndureConfigs. == 0) updateHud();
     }
 
     private void calculateThirst() {
         Player p = this.getPlayer();
         Location location = p.getLocation();
         Biome biome = location.getWorld().getBiome(location.getBlockX(), location.getBlockY(), location.getBlockZ());
-        float biomeModifier = EndureConfigs.THIRST.getBiomeModifier(biome.getKey().toString());
-        if (EndureConfigs.THIRST.getShouldTick()) {
+        float biomeModifier = EndureConfigs.get("ThirstConfig").getBiomeModifier(biome.getKey().toString());
+        if (EndureConfigs.get("ThirstConfig").getBoolean("tickWhileStanding")) {
             int interval = EndureConfigs.THIRST.getTickInterval();
             float percentTick = EndureConfigs.THIRST.getPercentTick();
             if (p.getTicksLived() % interval == 0) {
