@@ -16,18 +16,17 @@ public class ThirstConfig extends Config {
     @Override
     public OptionMap getDefaults() {
         OptionMap map = OptionMap.create();
-        map.put("tickWhileStanding", Option.of(false));
-        map.put("tickInterval", Option.of(1));
-        map.put("percentTickInterval", Option.of(0.5f));
-        map.put("blockDistanceInterval", Option.of(0.5f));
-        map.put("percentBlockDistanceInterval", Option.of(0.5f));
-        map.put("percentThirstPerBottle", Option.of(0.5f));
-        map.put("biomeModifiers", Option.of(new HashMap<String, Float>() {
-            {
-                put("desert", 2.0f);
-                put("savanna", 1.5f);
-            }
-        }));
+        map.put("tickWhileStanding", Option.of(true).withComment("Should players become thirsty while standing still."));
+        map.put("tickInterval", Option.of(600).withComment("How often should thirst be calculated in ticks."));
+        map.put("percentTickInterval", Option.of(3d).withComment("How much thirst should be added when the interval is reached."));
+        map.put("blockDistanceInterval", Option.of(50d).withComment("How many blocks to travel before thirst is added."));
+        map.put("percentBlockDistanceInterval", Option.of(0.5d).withComment("How much thirst to add when block distance traveled is met."));
+        map.put("percentThirstPerBottle", Option.of(25d).withComment("How much thirst to decrease when drinking water."));
+
+        HashMap<String, Float> biomeModifiers = new HashMap<>();
+        biomeModifiers.put("desert", 2.0f);
+        biomeModifiers.put("savanna", 1.5f);
+        map.put("biomeModifiers", Option.of(biomeModifiers).withComment("Multiplier for how much thirst is added in specified biomes."));
         return map;
     }
 }

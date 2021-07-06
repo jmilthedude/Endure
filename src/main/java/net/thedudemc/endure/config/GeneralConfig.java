@@ -14,7 +14,7 @@ public class GeneralConfig extends Config {
     @Override
     public OptionMap getDefaults() {
         OptionMap map = OptionMap.create();
-        map.put("hudUpdateIntervel", Option.of(10));
+        map.put("hudUpdateInterval", Option.of(1).withComment("How often should the player hud update in ticks. This can be changed based on server performance if needed."));
         return map;
     }
 
