@@ -49,7 +49,7 @@ public class PlayerEvents implements Listener {
         if (potion.getBasePotionData().getType() != PotionType.WATER) return;
         SurvivorEntity survivor = SurvivorsData.get().getSurvivor(p.getUniqueId());
 
-        survivor.addThirst((float) (EndureConfigs.get("Thirst").getDouble("percentThirstPerBottle") / 100f));
+        survivor.decreaseThirst((float) (EndureConfigs.get("Thirst").getDouble("percentThirstPerBottle") / 100f));
         event.setCancelled(true);
         if (p.getInventory().getItemInMainHand().isSimilar(stack))
             p.getInventory().setItemInMainHand(EndureItems.EMPTY_BOTTLE.getItemStack());

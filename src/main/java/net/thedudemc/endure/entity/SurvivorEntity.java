@@ -71,14 +71,14 @@ public class SurvivorEntity {
         markDirty();
     }
 
-    public void addThirst(float amount) {
+    public void decreaseThirst(float amount) {
         this.thirst = Math.min(thirst + amount, 1.0f);
         if (this.thirst == 1.0f) this.distanceTraveled = 0;
         this.getPlayer().setExp(thirst); // shows thirst level visually on exp bar
         markDirty();
     }
 
-    public void decreaseThirst(double amount) {
+    public void increaseThirst(double amount) {
         this.thirst = (float) Math.max(this.thirst - amount, 0.0f);
         this.getPlayer().setExp(thirst); // shows thirst level visually on exp bar
         markDirty();
@@ -129,7 +129,6 @@ public class SurvivorEntity {
         Biome biome = location.getWorld().getBiome(location.getBlockX(), location.getBlockY(), location.getBlockZ());
         Config config = EndureConfigs.get("Thirst");
         HashMap<?, ?> biomeModifiers = new HashMap<>(config.getMap("biomeModifiers"));
-        System.out.println(biome.name().toLowerCase());
         Object o = biomeModifiers.get(biome.name().toLowerCase());
         float biomeModifier = 1f;
         if (o != null) biomeModifier = (float) o;
@@ -137,11 +136,11 @@ public class SurvivorEntity {
             int interval = config.getInt("tickInterval");
             float percentTick = config.getFloat("percentTickInterval");
             if (p.getTicksLived() % interval == 0) {
-                decreaseThirst((percentTick / 100f) * biomeModifier);
+                increaseThirst((percentTick / 100f) * biomeModifier);
             }
         }
         if (distanceTraveled >= config.getDouble("blockDistanceInterval")) {
-            decreaseThirst((config.getDouble("percentBlockDistanceInterval") / 100f) * biomeModifier);
+            increaseThirst((config.getDouble("percentBlockDistanceInterval") / 100f) * biomeModifier);
             distanceTraveled = 0D;
         }
 
