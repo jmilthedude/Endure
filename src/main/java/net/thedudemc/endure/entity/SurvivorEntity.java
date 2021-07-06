@@ -18,9 +18,9 @@ import java.util.UUID;
 public class SurvivorEntity {
 
     @Expose
-    private UUID uuid;
+    private final UUID uuid;
     @Expose
-    private String name;
+    private final String name;
     @Expose
     private int level;
     @Expose
@@ -114,12 +114,18 @@ public class SurvivorEntity {
     }
 
     public void tick() {
-        if (hud == null) setupHud(); // create a hud if one does not exist
-
+        setupHud(); // create a hud if one does not exist
         calculateThirst();
+        updateHud();
 
-        if (this.getPlayer().getTicksLived() % EndureConfigs.get("General").getInt("hudUpdateInterval") == 0) {
-            if (hud != null) updateHud();
+        if (this.thirst <= 0) {
+            causeThirstDamage();
+        }
+    }
+
+    private void causeThirstDamage() {
+        if (this.getPlayer().getTicksLived() % EndureConfigs.get("Thirst").getInt("thirstDamageInterval") == 0) {
+            this.getPlayer().damage(EndureConfigs.get("Thirst").getDouble("thirstDamageAmount"));
         }
     }
 
@@ -147,6 +153,7 @@ public class SurvivorEntity {
     }
 
     private void setupHud() {
+        if (hud != null) return;
         Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
         Objective obj = board.registerNewObjective(this.getName(), "dummy", "Survivor HUD");
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
@@ -183,9 +190,13 @@ public class SurvivorEntity {
     }
 
     private void updateHud() {
-        Scoreboard hud = getPlayer().getScoreboard();
-        updateLine("Level", hud, this.getLevel());
-        updateLine("Experience", hud, getExperienceForDisplay());
+        if (this.hud == null) return;
+
+        if (this.getPlayer().getTicksLived() % EndureConfigs.get("General").getInt("hudUpdateInterval") == 0) {
+            Scoreboard hud = getPlayer().getScoreboard();
+            updateLine("Level", hud, this.getLevel());
+            updateLine("Experience", hud, getExperienceForDisplay());
+        }
     }
 
     private void updateLine(String name, Scoreboard hud, int value) {
