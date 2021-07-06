@@ -12,6 +12,7 @@ import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
 
+import java.util.HashMap;
 import java.util.UUID;
 
 public class SurvivorEntity {
@@ -118,7 +119,7 @@ public class SurvivorEntity {
         calculateThirst();
 
         if (this.getPlayer().getTicksLived() % EndureConfigs.get("General").getInt("hudUpdateInterval") == 0) {
-            updateHud();
+            if (hud != null) updateHud();
         }
     }
 
@@ -127,7 +128,11 @@ public class SurvivorEntity {
         Location location = p.getLocation();
         Biome biome = location.getWorld().getBiome(location.getBlockX(), location.getBlockY(), location.getBlockZ());
         Config config = EndureConfigs.get("Thirst");
-        float biomeModifier = (float) config.getMap("biomeModifiers").get(biome.getKey().getKey());
+        HashMap<?, ?> biomeModifiers = new HashMap<>(config.getMap("biomeModifiers"));
+        System.out.println(biome.name().toLowerCase());
+        Object o = biomeModifiers.get(biome.name().toLowerCase());
+        float biomeModifier = 1f;
+        if (o != null) biomeModifier = (float) o;
         if (config.getBoolean("tickWhileStanding")) {
             int interval = config.getInt("tickInterval");
             float percentTick = config.getFloat("percentTickInterval");
