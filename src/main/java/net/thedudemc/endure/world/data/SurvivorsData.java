@@ -10,8 +10,7 @@ import java.util.UUID;
 
 public class SurvivorsData extends Data {
 
-    @Expose
-    private final HashMap<UUID, SurvivorEntity> survivors = new HashMap<>();
+    @Expose private final HashMap<UUID, SurvivorEntity> survivors = new HashMap<>();
     private final HashSet<UUID> onlineSurvivors = new HashSet<>();
 
     @Override

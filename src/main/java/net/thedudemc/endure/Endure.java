@@ -2,12 +2,9 @@ package net.thedudemc.endure;
 
 import net.thedudemc.endure.init.EndureData;
 import net.thedudemc.endure.init.EndureSetup;
-import net.thedudemc.endure.util.Logger;
+import net.thedudemc.endure.world.data.Data;
 import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.io.IOException;
-import java.util.Arrays;
 
 public class Endure extends JavaPlugin {
 
@@ -31,14 +28,7 @@ public class Endure extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        EndureData.REGISTRY.values().forEach(data -> {
-            try {
-                data.write();
-            } catch (IOException e) {
-                Logger.error(e.getMessage());
-                Logger.error(Arrays.toString(e.getStackTrace()));
-            }
-        });
+        EndureData.REGISTRY.values().forEach(Data::save);
     }
 
     public static NamespacedKey getKey(String name) {

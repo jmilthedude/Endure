@@ -3,7 +3,6 @@ package net.thedudemc.endure.world.data;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.thedudemc.endure.Endure;
-import net.thedudemc.endure.util.Logger;
 
 import java.io.*;
 
@@ -44,8 +43,6 @@ public abstract class Data {
     }
 
     public void write() throws IOException {
-        if (!isDirty()) return;
-
         File dir = new File(this.root);
         if (!dir.exists() && !dir.mkdirs()) return;
         if (!this.getDataFile().exists() && !this.getDataFile().createNewFile()) return;
@@ -53,7 +50,16 @@ public abstract class Data {
         GSON.toJson(this, writer);
         writer.flush();
         writer.close();
-        this.dirty = false;
+    }
+
+    public void save() {
+        if (!this.isDirty()) return;
+        try {
+            this.write();
+            this.dirty = false;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public boolean isDirty() {
