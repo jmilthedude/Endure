@@ -22,6 +22,8 @@ public class ThirstConfig extends Config {
         map.put("blockDistanceInterval", Option.of(50d).withComment("How many blocks to travel before thirst is added."));
         map.put("percentBlockDistanceInterval", Option.of(0.5d).withComment("How much thirst to add when block distance traveled is met."));
         map.put("percentThirstPerBottle", Option.of(25d).withComment("How much thirst to decrease when drinking water."));
+        map.put("thirstDamageInterval", Option.of(80).withComment("How many ticks between damaging the player when thirst is at 0."));
+        map.put("thirstDamageAmount", Option.of(1.0d).withComment("How much damage to apply when the thirst interval is reached."));
 
         HashMap<String, Float> biomeModifiers = new HashMap<>();
         biomeModifiers.put("desert", 2.0f);
