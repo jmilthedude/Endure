@@ -64,6 +64,12 @@ public class EndureItem {
         return stack;
     }
 
+    public ItemStack getItemStack(int count) {
+        ItemStack stack = this.getItemStack();
+        stack.setAmount(count);
+        return stack;
+    }
+
     protected List<String> getInfo() {
         List<String> info = new ArrayList<>();
         if (!attributeModifiers.isEmpty()) {
