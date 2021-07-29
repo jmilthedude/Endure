@@ -6,7 +6,6 @@ import net.thedudemc.endure.init.EndureData;
 import net.thedudemc.endure.init.EndureItems;
 import net.thedudemc.endure.item.EndureItem;
 import net.thedudemc.endure.item.attributes.AttributeModifier;
-import net.thedudemc.endure.util.Logger;
 import net.thedudemc.endure.world.data.Data;
 import net.thedudemc.endure.world.data.SurvivorsData;
 import org.bukkit.Bukkit;
@@ -30,24 +29,7 @@ public class WorldEvents implements Listener {
     }
 
     public static void runWorldTick() {
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(Endure.getInstance(), () -> {
-            start = System.nanoTime();
-            SurvivorsData.get().tick();
-            end = System.nanoTime();
-            addTimeAndCalculateAvg();
-        }, 0L, 1L);
-    }
-
-    private static void addTimeAndCalculateAvg() {
-        ticks.add(end - start);
-        start = 0;
-        end = 0;
-        if (ticks.size() >= 100) {
-            long total = ticks.stream().mapToLong(tick -> tick).sum();
-            total /= ticks.size();
-            Logger.info("Average time per tick(ms):" + ((double) total / 1000000d));
-            ticks = new ArrayList<>();
-        }
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(Endure.getInstance(), () -> SurvivorsData.get().tick(), 0L, 1L);
     }
 
     @EventHandler
