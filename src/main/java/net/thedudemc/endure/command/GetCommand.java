@@ -5,9 +5,9 @@ import net.thedudemc.endure.item.EndureItem;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class GetCommand extends Command {
@@ -29,9 +29,9 @@ public class GetCommand extends Command {
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, org.bukkit.command.Command command, String alias, String[] args) {
+    public List<String> onTabComplete(@NotNull CommandSender sender, org.bukkit.command.@NotNull Command command, @NotNull String alias, String[] args) {
         if(args.length == 1) {
-            return StringUtil.copyPartialMatches(args[0], new ArrayList<String>() {
+            return StringUtil.copyPartialMatches(args[0], new ArrayList<>() {
                         {
                             this.addAll(EndureItems.REGISTRY.keySet());
                         }

@@ -15,7 +15,7 @@ public class EndureSetup {
         EndureCommands.register();
         EndureEvents.register(plugin);
 
-        WorldEvents.runWorldTick();
+        WorldEvents.runGlobalTick();
 
     }
 }
