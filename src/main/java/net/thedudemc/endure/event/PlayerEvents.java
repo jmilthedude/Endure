@@ -1,17 +1,12 @@
 package net.thedudemc.endure.event;
 
 import net.thedudemc.endure.entity.SurvivorEntity;
-import net.thedudemc.endure.init.EndureAttributes;
 import net.thedudemc.endure.init.EndureConfigs;
 import net.thedudemc.endure.init.EndureItems;
-import net.thedudemc.endure.item.EndureItem;
-import net.thedudemc.endure.item.attributes.AttributeModifier;
-import net.thedudemc.endure.util.EndureUtilities;
 import net.thedudemc.endure.world.data.SurvivorsData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -61,19 +56,4 @@ public class PlayerEvents implements Listener {
 
     }
 
-    @EventHandler
-    public void onPickupItem(EntityPickupItemEvent event) {
-        if (!(event.getEntity() instanceof Player)) return;
-        Player player = (Player) event.getEntity();
-
-        EndureItem item = EndureItems.getItemFromStack(event.getItem().getItemStack());
-        if (item == null) return;
-
-        AttributeModifier modifier = item.getAttributeModifier(EndureAttributes.MAX_STACK_SIZE);
-        if (modifier == null) return;
-
-        if (!EndureUtilities.addItem(player, event.getItem().getItemStack(), true)) {
-            event.setCancelled(true);
-        }
-    }
 }

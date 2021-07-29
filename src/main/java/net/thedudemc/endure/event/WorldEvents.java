@@ -31,21 +31,4 @@ public class WorldEvents implements Listener {
     public static void runWorldTick() {
         Bukkit.getScheduler().scheduleSyncRepeatingTask(Endure.getInstance(), () -> SurvivorsData.get().tick(), 0L, 1L);
     }
-
-    @EventHandler
-    public void onMerge(ItemMergeEvent event) {
-        EndureItem item = EndureItems.getItemFromStack(event.getEntity().getItemStack());
-        EndureItem target = EndureItems.getItemFromStack(event.getTarget().getItemStack());
-        if (item == null || target == null) return;
-        if (item != target) return;
-
-        AttributeModifier modifier = item.getAttributeModifier(EndureAttributes.MAX_STACK_SIZE);
-        if (modifier == null) return;
-
-        int max = (int) modifier.getAmount();
-        int targetCurrent = event.getTarget().getItemStack().getAmount();
-        int itemCurrent = event.getEntity().getItemStack().getAmount();
-
-        if (itemCurrent + targetCurrent > max) event.setCancelled(true);
-    }
 }

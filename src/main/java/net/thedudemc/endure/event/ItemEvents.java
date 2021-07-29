@@ -1,0 +1,50 @@
+package net.thedudemc.endure.event;
+
+import net.thedudemc.endure.init.EndureAttributes;
+import net.thedudemc.endure.init.EndureItems;
+import net.thedudemc.endure.item.EndureItem;
+import net.thedudemc.endure.item.attributes.AttributeModifier;
+import net.thedudemc.endure.util.EndureUtilities;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.entity.ItemMergeEvent;
+
+public class ItemEvents implements Listener {
+
+
+    @EventHandler
+    public void onPickupItem(EntityPickupItemEvent event) {
+        if (!(event.getEntity() instanceof Player)) return;
+        Player player = (Player) event.getEntity();
+
+        EndureItem item = EndureItems.getItemFromStack(event.getItem().getItemStack());
+        if (item == null) return;
+
+        AttributeModifier modifier = item.getAttributeModifier(EndureAttributes.MAX_STACK_SIZE);
+        if (modifier == null) return;
+
+        if (!EndureUtilities.addItem(player, event.getItem().getItemStack(), true)) {
+            event.setCancelled(true);
+        }
+    }
+
+
+    @EventHandler
+    public void onMerge(ItemMergeEvent event) {
+        EndureItem item = EndureItems.getItemFromStack(event.getEntity().getItemStack());
+        EndureItem target = EndureItems.getItemFromStack(event.getTarget().getItemStack());
+        if (item == null || target == null) return;
+        if (item != target) return;
+
+        AttributeModifier modifier = item.getAttributeModifier(EndureAttributes.MAX_STACK_SIZE);
+        if (modifier == null) return;
+
+        int max = (int) modifier.getAmount();
+        int targetCurrent = event.getTarget().getItemStack().getAmount();
+        int itemCurrent = event.getEntity().getItemStack().getAmount();
+
+        if (itemCurrent + targetCurrent > max) event.setCancelled(true);
+    }
+}
