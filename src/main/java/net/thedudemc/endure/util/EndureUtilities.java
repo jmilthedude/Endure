@@ -5,6 +5,7 @@ import net.thedudemc.endure.init.EndureItems;
 import net.thedudemc.endure.item.EndureItem;
 import net.thedudemc.endure.item.attributes.AttributeModifier;
 import org.bukkit.Material;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -34,5 +35,10 @@ public class EndureUtilities {
             }
         }
         return false;
+    }
+
+    public static void dropItem(Player player, ItemStack stack) {
+        Item item = player.getWorld().dropItem(player.getLocation().add(0, .75d, 0), stack);
+        item.setVelocity(player.getEyeLocation().getDirection().multiply(.5d));
     }
 }
