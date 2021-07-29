@@ -1,8 +1,12 @@
 package net.thedudemc.endure.event;
 
-import net.thedudemc.endure.init.EndureItems;
+import net.thedudemc.endure.entity.SurvivorEntity;
+import net.thedudemc.endure.init.EndureLoot;
+import net.thedudemc.endure.loot.base.LootItem;
 import net.thedudemc.endure.util.Logger;
-import org.bukkit.Material;
+import net.thedudemc.endure.util.MathUtilities;
+import net.thedudemc.endure.world.data.SurvivorsData;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.LootGenerateEvent;
@@ -10,18 +14,32 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class LootTableEvent implements Listener {
 
     @EventHandler
     public void onLootTable(LootGenerateEvent event) {
+        if (!(event.getEntity() instanceof Player)) return;
+        Player player = (Player) event.getEntity();
+        SurvivorEntity survivor = SurvivorsData.get().getSurvivor(player.getUniqueId());
         //TODO: get location and player level and base loot off of that
         Logger.info(event.getLootTable().toString());
-        List<ItemStack> loot = new ArrayList<>();
-        loot.add(EndureItems.DINKY_SWORD.getItemStack());
-        loot.add(new ItemStack(Material.GOLD_BLOCK));
-        loot.add(new ItemStack(Material.DIAMOND_BLOCK));
-        event.setLoot(loot);
+        List<ItemStack> items;
+        if (survivor.getLevel() < 5) {
+            items = EndureLoot.COMMON.getLoot(MathUtilities.getRandomInt(0, 3)).stream()
+                    .map(LootItem::get)
+                    .collect(Collectors.toList()
+                    );
+        } else if (survivor.getLevel() < 10) {
+            items = EndureLoot.UNCOMMON.getLoot(MathUtilities.getRandomInt(0, 3)).stream()
+                    .map(LootItem::get)
+                    .collect(Collectors.toList()
+                    );
+        } else {
+            items = new ArrayList<>();
+        }
+        event.setLoot(items);
 
     }
 }

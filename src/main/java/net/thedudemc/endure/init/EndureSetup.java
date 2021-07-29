@@ -12,8 +12,10 @@ public class EndureSetup {
         EndureData.register();
         EndureItems.register();
         EndureConfigs.register();
+        EndureLoot.register();
         EndureCommands.register();
         EndureEvents.register(plugin);
+
 
         WorldEvents.runGlobalTick();
 
