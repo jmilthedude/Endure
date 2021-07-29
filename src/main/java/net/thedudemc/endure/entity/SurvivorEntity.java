@@ -2,14 +2,21 @@ package net.thedudemc.endure.entity;
 
 import com.google.gson.annotations.Expose;
 import net.thedudemc.dudeconfig.config.Config;
+import net.thedudemc.endure.init.EndureAttributes;
 import net.thedudemc.endure.init.EndureConfigs;
+import net.thedudemc.endure.init.EndureItems;
+import net.thedudemc.endure.item.EndureItem;
+import net.thedudemc.endure.item.attributes.AttributeModifier;
+import net.thedudemc.endure.util.EndureUtilities;
 import net.thedudemc.endure.util.MathUtilities;
 import net.thedudemc.endure.world.data.SurvivorsData;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scoreboard.*;
 
 import java.util.HashMap;
@@ -29,6 +36,8 @@ public class SurvivorEntity {
     private float experience;
     @Expose
     private double distanceTraveled;
+    @Expose
+    private boolean online;
 
     private Scoreboard hud;
 
@@ -113,19 +122,55 @@ public class SurvivorEntity {
         markDirty();
     }
 
+    public void setOnline(boolean online) {
+        this.online = online;
+        this.markDirty();
+    }
+
+    public boolean isOnline() {
+        return online;
+    }
+
     public void tick() {
+        ensureStackSizes();
         setupHud(); // create a hud if one does not exist
-        calculateThirst();
         updateHud();
 
+        calculateThirst();
         if (this.thirst <= 0) {
             causeThirstDamage();
         }
+
     }
 
+    private void ensureStackSizes() {
+        for (ItemStack stack : this.getPlayer().getInventory()) {
+            if (stack == null || stack.getType() == Material.AIR) continue;
+            EndureItem item = EndureItems.getItemFromStack(stack);
+            if (item == null) continue;
+            int currentAmount = stack.getAmount();
+            AttributeModifier modifier = item.getAttributeModifier(EndureAttributes.MAX_STACK_SIZE);
+            if (modifier == null) continue;
+
+            int maxStackSize = (int) item.getAttributeModifier(EndureAttributes.MAX_STACK_SIZE).getAmount();
+            if (currentAmount > maxStackSize) {
+                int excess = currentAmount - maxStackSize;
+                stack.setAmount(maxStackSize);
+                ItemStack extra = stack.clone();
+                extra.setAmount(excess);
+                if (EndureUtilities.addItem(getPlayer(), extra, false)) {
+                    this.getPlayer().updateInventory();
+                } else {
+                    this.getPlayer().getWorld().dropItem(this.getPlayer().getLocation(), extra);
+                }
+            }
+        }
+    }
+
+
     private void causeThirstDamage() {
-        if (this.getPlayer().getTicksLived() % EndureConfigs.get("Thirst").getInt("thirstDamageInterval") == 0) {
-            this.getPlayer().damage(EndureConfigs.get("Thirst").getDouble("thirstDamageAmount"));
+        if (this.getPlayer().getTicksLived() % EndureConfigs.get("Thirst").getOption("thirstDamageInterval").getIntValue() == 0) {
+            this.getPlayer().damage(EndureConfigs.get("Thirst").getOption("thirstDamageAmount").getDoubleValue());
         }
     }
 
@@ -134,40 +179,40 @@ public class SurvivorEntity {
         Location location = p.getLocation();
         Biome biome = location.getWorld().getBiome(location.getBlockX(), location.getBlockY(), location.getBlockZ());
         Config config = EndureConfigs.get("Thirst");
-        HashMap<?, ?> biomeModifiers = new HashMap<>(config.getMap("biomeModifiers"));
+        HashMap<?, ?> biomeModifiers = new HashMap<>(config.getOption("biomeModifiers").getMapValue());
         Object o = biomeModifiers.get(biome.name().toLowerCase());
         float biomeModifier = 1f;
         if (o != null) biomeModifier = (float) o;
-        if (config.getBoolean("tickWhileStanding")) {
-            int interval = config.getInt("tickInterval");
-            float percentTick = config.getFloat("percentTickInterval");
+        if (config.getOption("tickWhileStanding").getBooleanValue()) {
+            int interval = config.getOption("tickInterval").getIntValue();
+            float percentTick = config.getOption("percentTickInterval").getFloatValue();
             if (p.getTicksLived() % interval == 0) {
                 increaseThirst((percentTick / 100f) * biomeModifier);
             }
         }
-        if (distanceTraveled >= config.getDouble("blockDistanceInterval")) {
-            increaseThirst((config.getDouble("percentBlockDistanceInterval") / 100f) * biomeModifier);
+        if (distanceTraveled >= config.getOption("blockDistanceInterval").getDoubleValue()) {
+            increaseThirst((config.getOption("percentBlockDistanceInterval").getDoubleValue() / 100f) * biomeModifier);
             distanceTraveled = 0D;
         }
 
     }
 
     private void setupHud() {
-        if (hud != null) return;
-        Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
-        Objective obj = board.registerNewObjective(this.getName(), "dummy", "Survivor HUD");
+        if (this.hud != null) return;
+
+        this.hud = Bukkit.getScoreboardManager().getNewScoreboard();
+        Objective obj = this.hud.getObjective(this.getName());
+        if (obj == null) obj = this.hud.registerNewObjective(this.getName(), "dummy", "Survivor HUD");
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
         int position = 0;
 
         addHeader("Level", obj, ChatColor.GREEN, --position);
-        addValue("Level", board, obj, --position, this.getLevel());
-        addSpace(board, obj, --position);
+        addValue("Level", obj, --position, this.getLevel());
+        addSpace(obj, --position);
         addHeader("Experience", obj, ChatColor.AQUA, --position);
-        addValue("Experience", board, obj, --position, getExperienceForDisplay());
+        addValue("Experience", obj, --position, getExperienceForDisplay());
 
-        this.hud = board;
-        this.getPlayer().setScoreboard(hud);
     }
 
     private void addHeader(String name, Objective obj, ChatColor color, int position) {
@@ -175,32 +220,35 @@ public class SurvivorEntity {
         levelHeader.setScore(position);
     }
 
-    private void addValue(String name, Scoreboard board, Objective obj, int position, int value) {
-        Team counter = board.registerNewTeam(name);
+    private void addValue(String name, Objective obj, int position, int value) {
+        Team counter = this.hud.registerNewTeam(name);
         counter.addEntry(ChatColor.values()[Math.abs(position)].toString());
         counter.setPrefix(" " + ChatColor.YELLOW + value);
         obj.getScore(ChatColor.values()[Math.abs(position)].toString()).setScore(position);
     }
 
-    private void addSpace(Scoreboard board, Objective obj, int position) {
+    private void addSpace(Objective obj, int position) {
         Score levelHeader = obj.getScore("---------" + ChatColor.values()[Math.abs(position)].toString());
         levelHeader.setScore(position);
-        Team counter = board.registerNewTeam(ChatColor.values()[Math.abs(position)].toString());
+        Team counter = this.hud.registerNewTeam(ChatColor.values()[Math.abs(position)].toString());
         counter.addEntry(ChatColor.values()[Math.abs(position)].toString());
     }
 
     private void updateHud() {
         if (this.hud == null) return;
 
-        if (this.getPlayer().getTicksLived() % EndureConfigs.get("General").getInt("hudUpdateInterval") == 0) {
+        if (!this.getPlayer().getScoreboard().equals(this.hud)) this.getPlayer().setScoreboard(this.hud);
+
+        if (this.getPlayer().getTicksLived() % EndureConfigs.get("General").getOption("hudUpdateInterval").getIntValue() == 0) {
             Scoreboard hud = getPlayer().getScoreboard();
-            updateLine("Level", hud, this.getLevel());
-            updateLine("Experience", hud, getExperienceForDisplay());
+            updateLine("Level", this.getLevel());
+            updateLine("Experience", getExperienceForDisplay());
         }
     }
 
-    private void updateLine(String name, Scoreboard hud, int value) {
-        hud.getTeam(name).setPrefix(" " + ChatColor.YELLOW + value);
+    private void updateLine(String name, int value) {
+        if (this.hud.getTeam(name) == null) return;
+        this.hud.getTeam(name).setPrefix(" " + ChatColor.YELLOW + value);
     }
 
 

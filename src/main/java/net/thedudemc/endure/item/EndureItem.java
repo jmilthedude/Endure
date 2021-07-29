@@ -7,6 +7,8 @@ import net.thedudemc.endure.util.Rarity;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataAdapterContext;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.text.DecimalFormat;
@@ -78,7 +80,12 @@ public class EndureItem {
         ItemStack stack = new ItemStack(this.material);
         ItemMeta meta = stack.getItemMeta();
         if (meta != null) {
-            meta.getPersistentDataContainer().set(Endure.getKey("ItemID"), PersistentDataType.STRING, this.getId());
+            PersistentDataAdapterContext context = meta.getPersistentDataContainer().getAdapterContext();
+            PersistentDataContainer tag = context.newPersistentDataContainer();
+
+            meta.getPersistentDataContainer().set(Endure.getKey("id"), PersistentDataType.STRING, this.getId());
+            attributeModifiers.forEach((k, v) -> tag.set(Endure.getKey(k.getAttributeName()), PersistentDataType.DOUBLE, v.getAmount()));
+            meta.getPersistentDataContainer().set(Endure.getKey("Attributes"), PersistentDataType.TAG_CONTAINER, tag);
             stack.setItemMeta(meta);
         }
         return stack;

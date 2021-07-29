@@ -41,7 +41,7 @@ public class EndureItems {
     public static EndureItem getItemFromStack(ItemStack stack) {
         ItemMeta meta = stack.getItemMeta();
         if (meta == null) return null;
-        String id = meta.getPersistentDataContainer().get(Endure.getKey("ItemID"), PersistentDataType.STRING);
+        String id = meta.getPersistentDataContainer().get(Endure.getKey("id"), PersistentDataType.STRING);
         return getItemById(id);
     }
 }

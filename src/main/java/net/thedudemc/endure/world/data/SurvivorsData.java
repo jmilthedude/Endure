@@ -24,7 +24,9 @@ public class SurvivorsData extends Data {
 
     public SurvivorsData tick() {
         this.survivors.values().forEach(survivor -> {
-            if (isOnline(survivor.getId())) survivor.tick();
+            if (survivor.isOnline()) {
+                survivor.tick();
+            }
         });
         return this;
     }

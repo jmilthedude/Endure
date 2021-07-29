@@ -20,7 +20,7 @@ configurations {
 dependencies {
     implementation 'org.jetbrains:annotations:20.1.0'
 
-    extraLibs 'net.thedudemc:dudeconfig:0.4.2-SNAPSHOT'
+    extraLibs 'net.thedudemc:dudeconfig:0.5-SNAPSHOT'
     configurations.implementation.extendsFrom(configurations.extraLibs)
 
     compileOnly 'org.spigotmc:spigot-api:1.17-R0.1-SNAPSHOT'
