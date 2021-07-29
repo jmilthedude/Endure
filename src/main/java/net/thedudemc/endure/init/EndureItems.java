@@ -22,11 +22,21 @@ public class EndureItems {
 
     public static void register() {
         DINKY_SWORD = registerItem(new SwordItem("dinky_sword", "Dinky Sword", Material.WOODEN_SWORD, Rarity.COMMON)
-                .withAttribute(EndureAttributes.BONUS_DAMAGE, new AttributeModifier("Bonus Damage", 12.0D, Operation.ADDITION))
-                .withAttribute(EndureAttributes.BASE_DAMAGE, new AttributeModifier("Base Damage", 2.0D, Operation.ADDITION))
+                .withAttribute(EndureAttributes.BONUS_DAMAGE,
+                        new AttributeModifier(
+                                EndureAttributes.BONUS_DAMAGE.getDisplayName(),
+                                12.0D, Operation.ADDITION))
+                .withAttribute(EndureAttributes.BASE_DAMAGE,
+                        new AttributeModifier(
+                                EndureAttributes.BASE_DAMAGE.getDisplayName(),
+                                2.0D, Operation.ADDITION))
         );
         EMPTY_BOTTLE = registerItem(new EndureItem("empty_bottle", "Empty Bottle", Material.GLASS_BOTTLE))
-                .withAttribute(EndureAttributes.MAX_STACK_SIZE, new AttributeModifier(EndureAttributes.MAX_STACK_SIZE.getDisplayName(), 2.0D, Operation.ADDITION));
+                .withAttribute(EndureAttributes.MAX_STACK_SIZE,
+                        new AttributeModifier(
+                                EndureAttributes.MAX_STACK_SIZE.getDisplayName(),
+                                2.0D, Operation.ADDITION)
+                );
     }
 
     private static EndureItem registerItem(EndureItem item) {

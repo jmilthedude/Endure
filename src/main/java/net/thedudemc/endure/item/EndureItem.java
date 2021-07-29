@@ -11,8 +11,6 @@ import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -73,10 +71,10 @@ public class EndureItem {
     protected List<String> getInfo() {
         List<String> info = new ArrayList<>();
         if (!attributeModifiers.isEmpty()) {
-            NumberFormat nf = new DecimalFormat("##.##");
+            info.add(" ");
             for (Attribute attribute : this.attributeModifiers.keySet()) {
                 AttributeModifier modifier = attributeModifiers.get(attribute);
-                info.add(attributeModifiers.get(attribute).getName() + ": " + nf.format(modifier.getAmount()));
+                info.add(modifier.getName() + ": " + modifier.getAmountString());
             }
         }
         return info;

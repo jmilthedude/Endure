@@ -1,31 +1,36 @@
 package net.thedudemc.endure.item.attributes;
 
+import org.bukkit.ChatColor;
+
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.Supplier;
 
 public class AttributeModifier {
 
     private final double amount;
     private final AttributeModifier.Operation operation;
-    private final Supplier<String> name;
+    private final String name;
     private final UUID id;
+    private final ChatColor amountColor;
 
     public AttributeModifier(String nameIn, double amountIn, AttributeModifier.Operation operationIn) {
-        this(getRandomUUID(ThreadLocalRandom.current()), () -> nameIn, amountIn, operationIn);
+        this(getRandomUUID(ThreadLocalRandom.current()), nameIn, amountIn, ChatColor.YELLOW, operationIn);
     }
 
-    public AttributeModifier(UUID uuid, String nameIn, double amountIn, AttributeModifier.Operation operationIn) {
-        this(uuid, () -> nameIn, amountIn, operationIn);
-    }
-
-    public AttributeModifier(UUID uuid, Supplier<String> nameIn, double amountIn, AttributeModifier.Operation operationIn) {
+    public AttributeModifier(UUID uuid, String nameIn, double amountIn, ChatColor amountColor, AttributeModifier.Operation operationIn) {
         this.id = uuid;
         this.name = nameIn;
         this.amount = amountIn;
         this.operation = operationIn;
+        this.amountColor = amountColor;
+    }
+
+    public AttributeModifier(String nameIn, double amountIn, ChatColor amountColor, AttributeModifier.Operation operationIn) {
+        this(getRandomUUID(ThreadLocalRandom.current()), nameIn, amountIn, amountColor, operationIn);
     }
 
     public UUID getID() {
@@ -33,11 +38,20 @@ public class AttributeModifier {
     }
 
     public String getName() {
-        return this.name.get();
+        return this.name;
     }
 
     public AttributeModifier.Operation getOperation() {
         return this.operation;
+    }
+
+    public ChatColor getAmountColor() {
+        return this.amountColor;
+    }
+
+    public String getAmountString() {
+        NumberFormat nf = new DecimalFormat("##.##");
+        return "" + this.getAmountColor() + nf.format(this.amount) + ChatColor.RESET;
     }
 
     public double getAmount() {
@@ -60,7 +74,7 @@ public class AttributeModifier {
     }
 
     public String toString() {
-        return "AttributeModifier{amount=" + this.amount + ", operation=" + this.operation + ", name='" + (String) this.name.get() + '\'' + ", id=" + this.id + '}';
+        return "AttributeModifier{amount=" + this.amount + ", operation=" + this.operation + ", name='" + (String) this.name + '\'' + ", id=" + this.id + '}';
     }
 
     public enum Operation {
