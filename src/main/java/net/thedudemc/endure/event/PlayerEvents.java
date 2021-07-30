@@ -7,6 +7,7 @@ import net.thedudemc.endure.world.data.SurvivorsData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -54,6 +55,11 @@ public class PlayerEvents implements Listener {
         else if (p.getInventory().getItemInOffHand().isSimilar(stack))
             p.getInventory().setItemInOffHand(EndureItems.EMPTY_BOTTLE.getItemStack());
 
+    }
+
+    @EventHandler
+    public void onCraft(CraftItemEvent event) {
+        event.setCancelled(true);
     }
 
 }

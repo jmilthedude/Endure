@@ -19,6 +19,7 @@ public class EndureItems {
 
     public static EndureItem DINKY_SWORD;
     public static EndureItem EMPTY_BOTTLE;
+    public static EndureItem FANCY_DIAMOND;
 
     public static void register() {
         DINKY_SWORD = registerItem(new SwordItem("dinky_sword", "Dinky Sword", Material.WOODEN_SWORD, Rarity.COMMON)
@@ -37,6 +38,8 @@ public class EndureItems {
                                 EndureAttributes.MAX_STACK_SIZE.getDisplayName(),
                                 2.0D, Operation.ADDITION)
                 );
+
+        FANCY_DIAMOND = registerItem(new EndureItem("fancy_diamond", "Fancy Diamond", Material.DIAMOND, Rarity.EPIC));
     }
 
     private static EndureItem registerItem(EndureItem item) {

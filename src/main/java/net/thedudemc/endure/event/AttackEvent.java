@@ -35,14 +35,14 @@ public class AttackEvent implements Listener {
             }
             event.setDamage(damageAmount);
         }
-        p.sendMessage(String.valueOf(event.getDamage()));
     }
 
     @EventHandler
     public void onKill(EntityDeathEvent event) {
         if (event.getEntity().getKiller() == null) return;
         Player p = event.getEntity().getKiller();
+        if (p == null) return;
         SurvivorEntity survivor = SurvivorsData.get().getSurvivor(p.getUniqueId());
-        survivor.addLevel(1);
+        survivor.addExperience(100);
     }
 }
