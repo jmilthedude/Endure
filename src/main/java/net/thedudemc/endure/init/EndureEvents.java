@@ -10,5 +10,6 @@ public class EndureEvents {
         plugin.getServer().getPluginManager().registerEvents(new AttackEvent(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new LootTableEvent(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new ItemEvents(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new EntityEvents(), plugin);
     }
 }

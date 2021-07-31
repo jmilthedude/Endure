@@ -41,4 +41,28 @@ public class EndureUtilities {
         Item item = player.getWorld().dropItem(player.getLocation().add(0, .75d, 0), stack);
         item.setVelocity(player.getEyeLocation().getDirection().multiply(.5d));
     }
+
+    public static void ensureStackSizes(Player player) {
+        for (ItemStack stack : player.getInventory()) {
+            if (stack == null || stack.getType() == Material.AIR) continue;
+            EndureItem item = EndureItems.getItemFromStack(stack);
+            if (item == null) continue;
+            int currentAmount = stack.getAmount();
+            AttributeModifier modifier = item.getAttributeModifier(EndureAttributes.MAX_STACK_SIZE);
+            if (modifier == null) continue;
+
+            int maxStackSize = (int) item.getAttributeModifier(EndureAttributes.MAX_STACK_SIZE).getAmount();
+            if (currentAmount > maxStackSize) {
+                int excess = currentAmount - maxStackSize;
+                stack.setAmount(maxStackSize);
+                ItemStack extra = stack.clone();
+                extra.setAmount(excess);
+                if (EndureUtilities.addItem(player, extra, false)) {
+                    player.updateInventory();
+                } else {
+                    player.getWorld().dropItem(player.getLocation(), extra);
+                }
+            }
+        }
+    }
 }
