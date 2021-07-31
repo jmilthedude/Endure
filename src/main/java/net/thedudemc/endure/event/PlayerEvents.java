@@ -4,14 +4,16 @@ import net.thedudemc.endure.entity.SurvivorEntity;
 import net.thedudemc.endure.init.EndureConfigs;
 import net.thedudemc.endure.init.EndureItems;
 import net.thedudemc.endure.world.data.SurvivorsData;
+import org.bukkit.Material;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Zombie;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.player.PlayerItemConsumeEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
@@ -60,6 +62,25 @@ public class PlayerEvents implements Listener {
     @EventHandler
     public void onCraft(CraftItemEvent event) {
         event.setCancelled(true);
+    }
+
+    // for testing armor damage
+    @EventHandler
+    public void onAddArmor(PlayerInteractAtEntityEvent event) {
+        if (event.getHand() != EquipmentSlot.HAND) return;
+        if (event.getRightClicked().getType() != EntityType.ZOMBIE) return;
+
+        Zombie zombie = (Zombie) event.getRightClicked();
+        Player player = event.getPlayer();
+
+        ItemStack stack = event.getPlayer().getInventory().getItemInMainHand();
+        if (stack.getType() != Material.DIAMOND_CHESTPLATE) return;
+        EntityEquipment equipment = zombie.getEquipment();
+        if (equipment != null) {
+            equipment.setChestplate(stack);
+        }
+        stack.setAmount(0);
+        player.updateInventory();
     }
 
 }
