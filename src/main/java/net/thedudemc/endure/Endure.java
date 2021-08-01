@@ -3,6 +3,8 @@ package net.thedudemc.endure;
 import net.thedudemc.endure.init.EndureData;
 import net.thedudemc.endure.init.EndureSetup;
 import net.thedudemc.endure.world.data.Data;
+import net.thedudemc.endure.world.data.SurvivorsData;
+import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -23,6 +25,9 @@ public class Endure extends JavaPlugin {
         INSTANCE = this;
 
         EndureSetup.initialize(this);
+
+        //in case of reload, add players back to cache
+        Bukkit.getOnlinePlayers().forEach(player -> SurvivorsData.get().getSurvivor(player.getUniqueId()).setOnline(player, true));
 
     }
 

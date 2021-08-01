@@ -24,13 +24,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
-
 public class AttackEvent implements Listener {
-
-    private static final Set<UUID> attacked = new HashSet<>();
 
     @EventHandler
     public void onAttack(EntityDamageByEntityEvent event) {
@@ -140,5 +134,6 @@ public class AttackEvent implements Listener {
         SurvivorEntity survivor = SurvivorsData.get().getSurvivor(p.getUniqueId());
         survivor.addExperience(100);
         event.setDroppedExp(0);
+        event.getDrops().clear();
     }
 }

@@ -1,5 +1,6 @@
 package net.thedudemc.endure.event;
 
+import net.thedudemc.endure.config.ThirstConfig;
 import net.thedudemc.endure.entity.SurvivorEntity;
 import net.thedudemc.endure.init.EndureConfigs;
 import net.thedudemc.endure.init.EndureItems;
@@ -23,12 +24,12 @@ public class PlayerEvents implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        SurvivorsData.get().getSurvivor(event.getPlayer().getUniqueId()).setOnline(true);
+        SurvivorsData.get().getSurvivor(event.getPlayer().getUniqueId()).setOnline(event.getPlayer(), true);
     }
 
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent event) {
-        SurvivorsData.get().getSurvivor(event.getPlayer().getUniqueId()).setOnline(false);
+        SurvivorsData.get().getSurvivor(event.getPlayer().getUniqueId()).setOnline(event.getPlayer(), false);
     }
 
     @EventHandler
@@ -50,7 +51,7 @@ public class PlayerEvents implements Listener {
         if (potion.getBasePotionData().getType() != PotionType.WATER) return;
         SurvivorEntity survivor = SurvivorsData.get().getSurvivor(p.getUniqueId());
 
-        survivor.decreaseThirst(EndureConfigs.get("Thirst").getOption("percentThirstPerBottle").getFloatValue() / 100f);
+        survivor.decreaseThirst((float) (((ThirstConfig) EndureConfigs.get("Thirst")).getPercentThirstPerWaterBottle() / 100f));
         event.setCancelled(true);
         if (p.getInventory().getItemInMainHand().isSimilar(stack))
             p.getInventory().setItemInMainHand(EndureItems.EMPTY_BOTTLE.getItemStack());

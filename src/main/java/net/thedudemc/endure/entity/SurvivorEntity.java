@@ -1,9 +1,9 @@
 package net.thedudemc.endure.entity;
 
 import com.google.gson.annotations.Expose;
-import net.thedudemc.dudeconfig.config.Config;
 import net.thedudemc.endure.config.EnemyConfig;
 import net.thedudemc.endure.config.ExperienceConfig;
+import net.thedudemc.endure.config.ThirstConfig;
 import net.thedudemc.endure.gui.SurvivorHud;
 import net.thedudemc.endure.init.EndureConfigs;
 import net.thedudemc.endure.util.EndureUtilities;
@@ -23,7 +23,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Zombie;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -128,9 +127,14 @@ public class SurvivorEntity {
         markDirty();
     }
 
-    public void setOnline(boolean online) {
+    public void setOnline(Player player, boolean online) {
         this.online = online;
-        updateXpNeeded();
+        if (online) {
+            this.player = player;
+            updateXpNeeded();
+        } else {
+            this.hud = null;
+        }
         this.markDirty();
     }
 
@@ -165,7 +169,7 @@ public class SurvivorEntity {
     }
 
     private void attemptSpawnZombie() {
-        if (this.getPlayer().getTicksLived() % ((EnemyConfig) EndureConfigs.get("Enemies")).getSpawnFrequency() == 0) {
+        if (this.getPlayer().getTicksLived() % ((EnemyConfig) EndureConfigs.get("Enemies")).getSpawnRate() == 0) {
             EnemyConfig config = (EnemyConfig) EndureConfigs.get("Enemies");
             if (this.spawnedEntities.size() < config.getMaximumEntities(this.getLevel())) {
                 if (Math.random() < config.getSpawnChance()) {
@@ -218,32 +222,27 @@ public class SurvivorEntity {
 
 
     private void causeThirstDamage() {
-        if (this.getPlayer().getTicksLived() % EndureConfigs.get("Thirst").getOption("thirstDamageInterval").getIntValue() == 0) {
-            this.getPlayer().damage(EndureConfigs.get("Thirst").getOption("thirstDamageAmount").getDoubleValue());
+        if (this.getPlayer().getTicksLived() % ((ThirstConfig) EndureConfigs.get("Thirst")).getThirstDamageInterval() == 0) {
+            this.getPlayer().damage(((ThirstConfig) EndureConfigs.get("Thirst")).getThirstDamageAmount());
         }
     }
 
     private void handleThirst() {
         Player p = this.getPlayer();
         Location location = p.getLocation();
-
-        Biome biome = location.getWorld().getBiome(location.getBlockX(), location.getBlockY(), location.getBlockZ());
-        Config config = EndureConfigs.get("Thirst");
-        HashMap<?, ?> biomeModifiers = new HashMap<>(config.getOption("biomeModifiers").getMapValue());
-        Object o = biomeModifiers.get(biome.name().toLowerCase());
-        float biomeModifier = 1f;
-        if (o != null) biomeModifier = (float) o;
-
-        if (config.getOption("tickWhileStanding").getBooleanValue()) {
-            int interval = config.getOption("tickInterval").getIntValue();
-            float percentTick = config.getOption("percentTickInterval").getFloatValue();
+        Biome biome = p.getWorld().getBiome(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+        ThirstConfig config = (ThirstConfig) EndureConfigs.get("Thirst");
+        double biomeModifier = config.getBiomeModifier(biome.name().toLowerCase());
+        if (config.shouldTickWhileStanding()) {
+            int interval = config.getTickInterval();
+            double percentTick = config.getPercentTickInterval();
             if (p.getTicksLived() % interval == 0) {
-                increaseThirst((percentTick / 100f) * biomeModifier);
+                increaseThirst((percentTick / 100d) * biomeModifier);
             }
         }
 
-        if (this.distanceTraveled >= config.getOption("blockDistanceInterval").getDoubleValue()) {
-            increaseThirst((config.getOption("percentBlockDistanceInterval").getDoubleValue() / 100f) * biomeModifier);
+        if (this.distanceTraveled >= config.getBlockDistanceInterval()) {
+            increaseThirst((config.getPercentBlockDistanceInterval() / 100d) * biomeModifier);
             this.distanceTraveled = 0D;
         }
 

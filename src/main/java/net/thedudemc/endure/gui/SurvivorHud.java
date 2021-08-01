@@ -1,5 +1,7 @@
 package net.thedudemc.endure.gui;
 
+import net.thedudemc.endure.Endure;
+import net.thedudemc.endure.config.GeneralConfig;
 import net.thedudemc.endure.entity.SurvivorEntity;
 import net.thedudemc.endure.init.EndureConfigs;
 import org.bukkit.Bukkit;
@@ -8,6 +10,8 @@ import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.scoreboard.*;
+
+import java.util.Objects;
 
 public class SurvivorHud {
 
@@ -21,11 +25,11 @@ public class SurvivorHud {
         setupExperienceBar();
     }
 
-
     private void setupStats() {
-        if (this.stats != null) return;
-
-        this.stats = Bukkit.getScoreboardManager().getNewScoreboard();
+        ScoreboardManager manager = Bukkit.getScoreboardManager();
+        if (manager == null) return;
+        this.stats = manager.getNewScoreboard();
+        this.survivor.getPlayer().setScoreboard(this.stats);
         Objective obj = this.stats.getObjective(survivor.getName());
         if (obj == null) obj = this.stats.registerNewObjective(survivor.getName(), "dummy", "Survivor HUD");
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
@@ -39,23 +43,26 @@ public class SurvivorHud {
         addValue("Experience", obj, --position, survivor.getExperience());
     }
 
+    public void setExperienceBar() {
+        BossBar bar = Bukkit.getBossBar(Endure.getKey(this.survivor.getName() + "xp"));
+        this.experienceBar = Objects.requireNonNullElseGet(bar,
+                () -> Bukkit.createBossBar(
+                        Endure.getKey(this.survivor.getName() + "xp"),
+                        "Experience",
+                        BarColor.GREEN,
+                        BarStyle.SOLID)
+        );
+    }
+
     private void setupExperienceBar() {
-        if (this.experienceBar != null) return;
-
-        this.experienceBar = Bukkit.createBossBar("Experience", BarColor.GREEN, BarStyle.SOLID);
-
+        this.setExperienceBar();
         this.experienceBar.addPlayer(this.survivor.getPlayer());
-
     }
 
 
     public void updateStats() {
         if (this.stats != null) {
-            if (!survivor.getPlayer().getScoreboard().equals(this.stats))
-                survivor.getPlayer().setScoreboard(this.stats);
-
-            if (survivor.getPlayer().getTicksLived() % EndureConfigs.get("General").getOption("hudUpdateInterval").getIntValue() == 0) {
-                Scoreboard hud = survivor.getPlayer().getScoreboard();
+            if (this.survivor.getPlayer().getTicksLived() % ((GeneralConfig) EndureConfigs.get("General")).getHudUpdateInterval() == 0) {
                 updateLine("Level", survivor.getLevel());
                 updateLine("Experience", survivor.getExperience());
             }
@@ -63,10 +70,12 @@ public class SurvivorHud {
     }
 
     public void updateExperienceBar(int xpNeeded) {
-        if (this.experienceBar != null) {
-            int currentXp = survivor.getExperience();
-            this.experienceBar.setProgress((double) currentXp / (double) xpNeeded);
+        if (!this.experienceBar.getPlayers().contains(this.survivor.getPlayer())) {
+            this.experienceBar.addPlayer(this.survivor.getPlayer());
         }
+
+        int currentXp = survivor.getExperience();
+        this.experienceBar.setProgress((double) currentXp / (double) xpNeeded);
     }
 
     private void addHeader(String name, Objective obj, ChatColor color, int position) {
@@ -89,7 +98,12 @@ public class SurvivorHud {
     }
 
     private void updateLine(String name, int value) {
-        if (this.stats.getTeam(name) == null) return;
-        this.stats.getTeam(name).setPrefix(" " + ChatColor.YELLOW + value);
+        Team team = this.stats.getTeam(name);
+        if (team == null) return;
+        team.setPrefix(" " + ChatColor.YELLOW + value);
+    }
+
+    public void reset() {
+        Bukkit.removeBossBar(Endure.getKey(this.survivor.getName() + "xp"));
     }
 }

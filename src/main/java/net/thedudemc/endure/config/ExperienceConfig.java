@@ -1,23 +1,22 @@
 package net.thedudemc.endure.config;
 
+import com.google.gson.annotations.Expose;
 import net.thedudemc.dudeconfig.config.Config;
-import net.thedudemc.dudeconfig.config.option.Option;
-import net.thedudemc.dudeconfig.config.option.OptionMap;
 
 import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
 
 public class ExperienceConfig extends Config {
+
+    @Expose private HashMap<Integer, Integer> levelExp;
+
     @Override
     public String getName() {
         return "Experience";
     }
 
     @Override
-    public OptionMap getDefaults() {
-        TreeMap<Integer, Integer> treeMap = new TreeMap<>();
-
+    protected void reset() {
+        levelExp = new HashMap<>();
         int xpNeeded = 0;
         for (int i = 1; i < 58; i++) {
             if (i == 1) xpNeeded = 100;
@@ -30,25 +29,22 @@ public class ExperienceConfig extends Config {
             else if (i <= 56) xpNeeded += 150;
             else xpNeeded += 100;
 
-            treeMap.put(i, xpNeeded);
+            levelExp.put(i, xpNeeded);
         }
-        OptionMap map = OptionMap.create();
-        map.put("xpRequired", Option.of(treeMap));
-        return map;
     }
 
     public int getExperienceNeeded(int level) {
-        HashMap<?, ?> map = this.getOption("xpRequired").getMapValue();
-
-        for (Map.Entry<?, ?> entry : map.entrySet()) {
-            if (entry.getKey() instanceof String) {
-                int cfgLevel = Integer.parseInt((String) entry.getKey());
-                if (entry.getValue() instanceof Number) {
-                    if ((cfgLevel - 1) == level) return ((Number) entry.getValue()).intValue();
-                }
-            }
+        if (level > 56) {
+            return getOverLevelExp(level);
         }
+        return levelExp.get(level) == null ? 0 : levelExp.get(level);
+    }
 
-        return Integer.MAX_VALUE;
+    private int getOverLevelExp(int level) {
+        int sum = levelExp.values().stream().mapToInt(i -> i).sum();
+        for (int overLevel = level - 56; overLevel > 0; overLevel--) {
+            sum += 100;
+        }
+        return sum;
     }
 }

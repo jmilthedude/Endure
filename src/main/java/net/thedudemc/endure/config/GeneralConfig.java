@@ -1,10 +1,11 @@
 package net.thedudemc.endure.config;
 
+import com.google.gson.annotations.Expose;
 import net.thedudemc.dudeconfig.config.Config;
-import net.thedudemc.dudeconfig.config.option.Option;
-import net.thedudemc.dudeconfig.config.option.OptionMap;
 
 public class GeneralConfig extends Config {
+
+    @Expose private int hudUpdateInterval;
 
     @Override
     public String getName() {
@@ -12,10 +13,15 @@ public class GeneralConfig extends Config {
     }
 
     @Override
-    public OptionMap getDefaults() {
-        OptionMap map = OptionMap.create();
-        map.put("hudUpdateInterval", Option.of(1).withComment("How often should the player hud update in ticks. This can be changed based on server performance if needed."));
-        return map;
+    protected void reset() {
+        this.hudUpdateInterval = 1;
     }
 
+    public int getHudUpdateInterval() {
+        return this.hudUpdateInterval;
+    }
+
+    public void setHudUpdateInterval(int hudUpdateInterval) {
+        this.hudUpdateInterval = hudUpdateInterval;
+    }
 }
