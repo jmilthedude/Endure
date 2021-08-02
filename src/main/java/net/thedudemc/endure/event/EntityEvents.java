@@ -4,6 +4,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Zombie;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityCombustEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 
 public class EntityEvents implements Listener {
@@ -17,5 +18,10 @@ public class EntityEvents implements Listener {
         if (player.isSneaking()) {
             if (zombie.getLocation().distanceSquared(player.getLocation()) > (10 * 10)) event.setCancelled(true);
         }
+    }
+
+    @EventHandler
+    public void onFire(EntityCombustEvent event) {
+        if (event.getEntity() instanceof Zombie) event.setCancelled(true);
     }
 }

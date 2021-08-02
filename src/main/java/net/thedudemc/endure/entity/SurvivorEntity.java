@@ -1,27 +1,19 @@
 package net.thedudemc.endure.entity;
 
 import com.google.gson.annotations.Expose;
-import net.thedudemc.endure.config.EnemyConfig;
 import net.thedudemc.endure.config.ExperienceConfig;
 import net.thedudemc.endure.config.ThirstConfig;
 import net.thedudemc.endure.gui.SurvivorHud;
 import net.thedudemc.endure.init.EndureConfigs;
 import net.thedudemc.endure.util.EndureUtilities;
-import net.thedudemc.endure.util.MathUtilities;
 import net.thedudemc.endure.world.data.SurvivorsData;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Sound;
-import org.bukkit.World;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Biome;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Zombie;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -35,8 +27,8 @@ public class SurvivorEntity {
     @Expose private float thirst;
     @Expose private int experience;
     @Expose private double distanceTraveled;
+    @Expose private Set<UUID> spawnedEntities = new HashSet<>();
 
-    private Set<UUID> spawnedEntities = new HashSet<>();
     private int xpNeeded;
     private boolean online;
 
@@ -127,14 +119,16 @@ public class SurvivorEntity {
         markDirty();
     }
 
-    public void setOnline(Player player, boolean online) {
-        this.online = online;
-        if (online) {
-            this.player = player;
-            updateXpNeeded();
-        } else {
-            this.hud = null;
-        }
+    public void onLogin(Player player) {
+        this.online = true;
+        this.player = player;
+        updateXpNeeded();
+        this.markDirty();
+    }
+
+    public void onLogout() {
+        this.online = false;
+        this.hud = null;
         this.markDirty();
     }
 
@@ -149,10 +143,7 @@ public class SurvivorEntity {
 
         EndureUtilities.ensureStackSizes(this.getPlayer());
 
-        handleThirst();
-
-        if (this.spawnedEntities == null) this.spawnedEntities = new HashSet<>();
-        attemptSpawnZombie();
+        if (this.getPlayer().getGameMode() == GameMode.SURVIVAL) handleThirst();
 
         checkEntitiesRemoved();
     }
@@ -161,63 +152,15 @@ public class SurvivorEntity {
         UUID idToRemove = null;
         for (UUID id : this.spawnedEntities) {
             Entity e = Bukkit.getEntity(id);
-            if (e == null || e.isDead()) {
+            if (e == null || e.isDead() || !e.isValid()) {
                 idToRemove = id;
             }
         }
         if (idToRemove != null) this.spawnedEntities.remove(idToRemove);
     }
 
-    private void attemptSpawnZombie() {
-        if (this.getPlayer().getTicksLived() % ((EnemyConfig) EndureConfigs.get("Enemies")).getSpawnRate() == 0) {
-            EnemyConfig config = (EnemyConfig) EndureConfigs.get("Enemies");
-            if (this.spawnedEntities.size() < config.getMaximumEntities(this.getLevel())) {
-                if (Math.random() < config.getSpawnChance()) {
-                    double radius = config.getSpawnRadius();
-                    Location spawnLocation = getPossibleSpawnLocation(this.getPlayer().getWorld(), this.getPlayer().getLocation(), radius);
-                    if (spawnLocation == null) return;
-                    Zombie zombie = (Zombie) this.getPlayer().getWorld().spawnEntity(spawnLocation, EntityType.ZOMBIE);
-                    zombie.setGlowing(true);
-                    if (zombie.isAdult()) {
-                        AttributeInstance speed = zombie.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
-                        if (speed != null) speed.setBaseValue(speed.getBaseValue() * 1.5);
-                    }
-                    this.spawnedEntities.add(zombie.getUniqueId());
-                }
-            }
-        }
-    }
-
-    private Location getPossibleSpawnLocation(@NotNull World world, Location location, double radius) {
-        Location toSpawn = null;
-        int positiveX = MathUtilities.getRandomInt(24, (int) radius);
-        int negativeX = -MathUtilities.getRandomInt(25, (int) radius);
-        int positiveZ = MathUtilities.getRandomInt(24, (int) radius);
-        int negativeZ = -MathUtilities.getRandomInt(25, (int) radius);
-        Location spawn = new Location(world, location.getX(), location.getY(), location.getZ());
-        if (Math.random() < .5d) {
-            spawn.add(positiveX, 0, 0);
-        } else {
-            spawn.add(negativeX, 0, 0);
-        }
-        if (Math.random() < .5d) {
-            spawn.add(0, 0, positiveZ);
-        } else {
-            spawn.add(0, 0, negativeZ);
-        }
-        for (int yLevel = (int) Math.max(1, location.getBlockY() - radius); yLevel < Math.min(location.getBlockY() + radius, world.getMaxHeight()); yLevel++) {
-            Block block = world.getBlockAt(spawn.getBlockX(), yLevel + 1, spawn.getBlockZ());
-            if (block.isLiquid()) continue;
-            if ((world.getBlockAt(location).getLightFromSky() > 0 && block.getLightFromSky() > 0) ||
-                    (world.getBlockAt(location).getLightFromSky() == 0 && block.getLightFromSky() == 0)) {
-                Location above = block.getLocation().clone().add(0, 1, 0);
-                if (world.getBlockAt(above).getType().isAir() && world.getBlockAt(above.add(0, 1, 0)).getType().isAir()) {
-                    toSpawn = block.getLocation().clone().add(0.5, 1, 0.5);
-                    break;
-                }
-            }
-        }
-        return toSpawn;
+    private boolean hasSkyAccess(Location location) {
+        return location.getBlock().getLightFromSky() > 0;
     }
 
 
@@ -262,4 +205,7 @@ public class SurvivorEntity {
         SurvivorsData.get().markDirty();
     }
 
+    public Set<UUID> getSpawnedEntities() {
+        return this.spawnedEntities;
+    }
 }

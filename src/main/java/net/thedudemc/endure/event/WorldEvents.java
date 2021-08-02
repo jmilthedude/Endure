@@ -1,28 +1,17 @@
 package net.thedudemc.endure.event;
 
-import net.thedudemc.endure.Endure;
 import net.thedudemc.endure.init.EndureData;
 import net.thedudemc.endure.world.data.Data;
-import net.thedudemc.endure.world.data.SurvivorsData;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Zombie;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.entity.EntityCombustEvent;
 import org.bukkit.event.world.WorldSaveEvent;
 
 public class WorldEvents implements Listener {
 
-    private static long globalTickCounter = 0L;
-
     @EventHandler
     public void onSave(WorldSaveEvent event) {
         EndureData.REGISTRY.values().forEach(Data::save);
-    }
-
-    public static void runGlobalTick() {
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(Endure.getInstance(), () -> SurvivorsData.get().tick(), 0L, 1L);
     }
 
     @EventHandler
@@ -30,10 +19,5 @@ public class WorldEvents implements Listener {
         if (event.getSpawnReason() == CreatureSpawnEvent.SpawnReason.NATURAL) {
             event.setCancelled(true); // we will control spawning.
         }
-    }
-
-    @EventHandler
-    public void onFire(EntityCombustEvent event) {
-        if (event.getEntity() instanceof Zombie) event.setCancelled(true);
     }
 }

@@ -4,6 +4,7 @@ import com.google.gson.annotations.Expose;
 import net.thedudemc.endure.entity.SurvivorEntity;
 import net.thedudemc.endure.init.EndureData;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -39,6 +40,10 @@ public class SurvivorsData extends Data {
         SurvivorEntity survivor = survivors.computeIfAbsent(uuid, id -> new SurvivorEntity(id, 1, 1.0f, 0));
         markDirty();
         return survivor;
+    }
+
+    public Collection<SurvivorEntity> getSurvivors() {
+        return this.survivors.values();
     }
 
     public static SurvivorsData get() {

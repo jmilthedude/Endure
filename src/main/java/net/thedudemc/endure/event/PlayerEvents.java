@@ -24,12 +24,12 @@ public class PlayerEvents implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        SurvivorsData.get().getSurvivor(event.getPlayer().getUniqueId()).setOnline(event.getPlayer(), true);
+        SurvivorsData.get().getSurvivor(event.getPlayer().getUniqueId()).onLogin(event.getPlayer());
     }
 
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent event) {
-        SurvivorsData.get().getSurvivor(event.getPlayer().getUniqueId()).setOnline(event.getPlayer(), false);
+        SurvivorsData.get().getSurvivor(event.getPlayer().getUniqueId()).onLogout();
     }
 
     @EventHandler

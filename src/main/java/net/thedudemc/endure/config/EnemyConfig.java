@@ -9,7 +9,9 @@ public class EnemyConfig extends Config {
 
     @Expose private HashMap<Integer, Integer> maxEntitiesPerLevel;
     @Expose private int spawnRate;
-    @Expose private double spawnRadius;
+    @Expose private int minSpawnRadius;
+    @Expose private int maxSpawnRadius;
+    @Expose private int maxHeightDifference;
     @Expose private double spawnChance;
 
 
@@ -21,15 +23,17 @@ public class EnemyConfig extends Config {
     @Override
     protected void reset() {
         maxEntitiesPerLevel = new HashMap<>();
-        int count = 2;
+        int count = 4;
         for (int level = 1; level <= 50; level++) {
             if (level % 5 == 0) {
-                count += 2;
+                count += 5;
             }
             maxEntitiesPerLevel.put(level, count);
         }
         spawnRate = 1;
-        spawnRadius = 32d;
+        minSpawnRadius = 16;
+        maxSpawnRadius = 32;
+        maxHeightDifference = 16;
         spawnChance = 0.25d;
     }
 
@@ -41,11 +45,19 @@ public class EnemyConfig extends Config {
         return spawnRate;
     }
 
-    public double getSpawnRadius() {
-        return spawnRadius;
+    public int getMinSpawnRadius() {
+        return minSpawnRadius;
+    }
+
+    public int getMaxSpawnRadius() {
+        return maxSpawnRadius;
     }
 
     public double getSpawnChance() {
         return spawnChance;
+    }
+
+    public int getMaxHeightDifference() {
+        return maxHeightDifference;
     }
 }
