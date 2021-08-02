@@ -1,11 +1,10 @@
 package net.thedudemc.endure.init;
 
-import net.thedudemc.endure.Endure;
 import net.thedudemc.endure.util.Logger;
 
 public class EndureSetup {
 
-    public static void initialize(Endure plugin) {
+    public static void initialize() {
         Logger.info("Initializing...");
 
         EndureData.register();
@@ -18,7 +17,7 @@ public class EndureSetup {
         Logger.info("Loot registered.");
         EndureCommands.register();
         Logger.info("Commands registered.");
-        EndureEvents.register(plugin);
+        EndureEvents.register();
         Logger.info("Events registered.");
         EndureTasks.register();
         Logger.info("Tasks registered.");

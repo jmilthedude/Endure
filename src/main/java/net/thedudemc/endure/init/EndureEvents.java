@@ -1,15 +1,20 @@
 package net.thedudemc.endure.init;
 
+import net.thedudemc.endure.Endure;
 import net.thedudemc.endure.event.*;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.event.Listener;
 
 public class EndureEvents {
-    public static void register(JavaPlugin plugin) {
-        plugin.getServer().getPluginManager().registerEvents(new PlayerEvents(), plugin);
-        plugin.getServer().getPluginManager().registerEvents(new WorldEvents(), plugin);
-        plugin.getServer().getPluginManager().registerEvents(new AttackEvent(), plugin);
-        plugin.getServer().getPluginManager().registerEvents(new LootTableEvent(), plugin);
-        plugin.getServer().getPluginManager().registerEvents(new ItemEvents(), plugin);
-        plugin.getServer().getPluginManager().registerEvents(new EntityEvents(), plugin);
+    public static void register() {
+        registerEvent(new PlayerEvents());
+        registerEvent(new WorldEvents());
+        registerEvent(new AttackEvent());
+        registerEvent(new LootTableEvent());
+        registerEvent(new ItemEvents());
+        registerEvent(new EntityEvents());
+    }
+
+    private static void registerEvent(Listener event) {
+        Endure.getInstance().getServer().getPluginManager().registerEvents(event, Endure.getInstance());
     }
 }

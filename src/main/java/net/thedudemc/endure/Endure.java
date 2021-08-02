@@ -22,9 +22,9 @@ public class Endure extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        INSTANCE = this;
+        if (INSTANCE == null) INSTANCE = this;
 
-        EndureSetup.initialize(this);
+        EndureSetup.initialize();
 
         //in case of reload, add players back to cache
         Bukkit.getOnlinePlayers().forEach(player -> SurvivorsData.get().getSurvivor(player.getUniqueId()).onLogin(player));
