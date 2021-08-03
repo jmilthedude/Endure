@@ -121,12 +121,12 @@ public class AttackEvent implements Listener {
 
     @EventHandler
     public void onKill(EntityDeathEvent event) {
+        event.getDrops().clear();
         if (event.getEntity().getKiller() == null) return;
         Player p = event.getEntity().getKiller();
         if (p == null) return;
         SurvivorEntity survivor = SurvivorsData.get().getSurvivor(p.getUniqueId());
         survivor.addExperience(100);
         event.setDroppedExp(0);
-        event.getDrops().clear();
     }
 }
