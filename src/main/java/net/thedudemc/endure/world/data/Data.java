@@ -16,7 +16,7 @@ public abstract class Data {
 
     public abstract String getName();
 
-    protected abstract void reset();
+    protected abstract void tick();
 
     private File getDataFile() {
         return new File(this.root + this.getName() + this.extension);
@@ -33,8 +33,6 @@ public abstract class Data {
     }
 
     public void generate() {
-        this.reset();
-
         try {
             this.write();
         } catch (IOException e) {

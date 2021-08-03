@@ -1,14 +1,14 @@
 package net.thedudemc.endure.event;
 
+import net.thedudemc.endure.Endure;
+import net.thedudemc.endure.entity.EndureEntity;
 import net.thedudemc.endure.entity.SurvivorEntity;
-import net.thedudemc.endure.init.EndureAttributes;
 import net.thedudemc.endure.init.EndureItems;
 import net.thedudemc.endure.item.EndureItem;
-import net.thedudemc.endure.item.attributes.AttributeModifier;
+import net.thedudemc.endure.item.WeaponItem;
+import net.thedudemc.endure.world.data.EntitiesData;
 import net.thedudemc.endure.world.data.SurvivorsData;
-import org.bukkit.Location;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.enchantments.Enchantment;
@@ -37,30 +37,34 @@ public class AttackEvent implements Listener {
         ItemStack stack = player.getInventory().getItemInMainHand();
         EndureItem item = EndureItems.getItemFromStack(stack);
 
-        double damage = 0;
-
-        if (item != null) {
-
-            AttributeModifier damageModifier = item.getAttributeModifier(EndureAttributes.BASE_DAMAGE);
-            if (damageModifier != null) {
-                damage += damageModifier.getAmount();
-            }
-
-            AttributeModifier bonusDamage = item.getAttributeModifier(EndureAttributes.BONUS_DAMAGE);
-            if (bonusDamage != null) {
-                damage += bonusDamage.getAmount();
-            }
-
+        if (item instanceof WeaponItem) {
+            WeaponItem sword = (WeaponItem) item;
             event.setDamage(EntityDamageEvent.DamageModifier.ARMOR, 0); // we do our own armor calculations
-
-            damage += getStrengthIncrease(player);
-            damage *= getCritIncrease(player, target);
-            damage *= getArmorReduction(target, damage);
-            damage *= getEnchantmentReduction(target);
-
-            event.setDamage(damage * player.getAttackCooldown());
+            double damage = calculateDamage(player, target, sword);
+            event.setDamage(damage);
         }
-        System.out.println(damage * player.getAttackCooldown());
+
+        updateEntityHealthBar(target);
+    }
+
+    private double calculateDamage(Player player, LivingEntity target, WeaponItem item) {
+        double damage = item.getDamage();
+
+        damage += item.getBonusDamage();
+        damage += getStrengthIncrease(player);
+        damage *= getCritIncrease(player, target);
+        damage *= getArmorReduction(target, damage);
+        damage *= getEnchantmentReduction(target);
+        damage *= player.getAttackCooldown();
+
+        return damage;
+    }
+
+    private void updateEntityHealthBar(LivingEntity target) {
+        EndureEntity endureEntity = EntitiesData.get().getEntity(target.getUniqueId());
+        if (endureEntity != null) {
+            Bukkit.getScheduler().scheduleSyncDelayedTask(Endure.getInstance(), endureEntity::updateHealthBar, 1L);
+        }
     }
 
     private double getArmorReduction(LivingEntity target, double damage) {
@@ -106,23 +110,12 @@ public class AttackEvent implements Listener {
     }
 
     private boolean isCrit(Player player, LivingEntity target) {
-        boolean crit = player.getFallDistance() > 0.0F &&
+        return player.getFallDistance() > 0.0F &&
                 !player.isOnGround() &&
                 !player.isClimbing() &&
                 !player.isInWater() &&
                 !player.hasPotionEffect(PotionEffectType.BLINDNESS) &&
                 !player.isInsideVehicle();
-        if (crit) {
-            player.spawnParticle(
-                    Particle.CRIT,
-                    new Location(target.getWorld(),
-                            target.getLocation().getX(),
-                            target.getLocation().getY() + 1.5d,
-                            target.getLocation().getZ()),
-                    10);
-            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_CRIT, .75f, 1.0f);
-        }
-        return crit;
     }
 
 

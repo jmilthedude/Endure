@@ -1,13 +1,13 @@
 package net.thedudemc.endure.world;
 
 import net.thedudemc.endure.config.EnemyConfig;
+import net.thedudemc.endure.entity.EndureZombie;
 import net.thedudemc.endure.entity.SurvivorEntity;
 import net.thedudemc.endure.init.EndureConfigs;
+import net.thedudemc.endure.world.data.EntitiesData;
 import net.thedudemc.endure.world.data.SurvivorsData;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.data.type.Leaves;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Zombie;
@@ -19,7 +19,10 @@ public class EndureSpawnerTask implements Runnable {
 
     private void attemptSpawnZombie(SurvivorEntity survivor) {
         EnemyConfig config = (EnemyConfig) EndureConfigs.get("Enemies");
-        if (survivor.getSpawnedEntities().size() < config.getMaximumEntities(survivor.getLevel())) {
+
+        EntitiesData entityData = EntitiesData.get();
+        int spawnedEntityCount = entityData.getEntities(survivor.getId()).size();
+        if (spawnedEntityCount < config.getMaximumEntities(survivor.getLevel())) {
             if (Math.random() < config.getSpawnChance()) {
                 int min = config.getMinSpawnRadius();
                 int max = config.getMaxSpawnRadius();
@@ -27,12 +30,7 @@ public class EndureSpawnerTask implements Runnable {
                 Location spawnLocation = getPossibleSpawnLocation(survivor.getPlayer().getWorld(), survivor.getPlayer().getLocation(), min, max, maxHeightDifference);
                 if (spawnLocation == null) return;
                 Zombie zombie = (Zombie) survivor.getPlayer().getWorld().spawnEntity(spawnLocation, EntityType.ZOMBIE);
-                zombie.setGlowing(true);
-                if (zombie.isAdult()) {
-                    AttributeInstance speed = zombie.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
-                    if (speed != null) speed.setBaseValue(speed.getBaseValue() * 1.5);
-                }
-                survivor.getSpawnedEntities().add(zombie.getUniqueId());
+                entityData.addEntity(survivor.getId(), new EndureZombie(zombie, 1));
             }
         }
     }

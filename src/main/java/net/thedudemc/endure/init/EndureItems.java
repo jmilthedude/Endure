@@ -2,7 +2,7 @@ package net.thedudemc.endure.init;
 
 import net.thedudemc.endure.Endure;
 import net.thedudemc.endure.item.EndureItem;
-import net.thedudemc.endure.item.SwordItem;
+import net.thedudemc.endure.item.WeaponItem;
 import net.thedudemc.endure.item.attributes.AttributeModifier;
 import net.thedudemc.endure.item.attributes.AttributeModifier.Operation;
 import net.thedudemc.endure.util.Rarity;
@@ -22,7 +22,7 @@ public class EndureItems {
     public static EndureItem FANCY_DIAMOND;
 
     public static void register() {
-        DINKY_SWORD = registerItem(new SwordItem("dinky_sword", "Dinky Sword", Material.WOODEN_SWORD, Rarity.COMMON)
+        DINKY_SWORD = registerItem(new WeaponItem("dinky_sword", "Dinky Sword", Material.WOODEN_SWORD, Rarity.COMMON)
                 .withAttribute(EndureAttributes.BONUS_DAMAGE,
                         new AttributeModifier(
                                 EndureAttributes.BONUS_DAMAGE.getDisplayName(),

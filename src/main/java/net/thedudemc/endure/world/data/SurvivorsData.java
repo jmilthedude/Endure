@@ -18,16 +18,12 @@ public class SurvivorsData extends Data {
     }
 
     @Override
-    protected void reset() {
-    }
-
-    public SurvivorsData tick() {
+    public void tick() {
         this.survivors.values().forEach(survivor -> {
             if (survivor.isOnline()) {
                 survivor.tick();
             }
         });
-        return this;
     }
 
     public SurvivorsData addSurvivor(UUID uuid, SurvivorEntity survivor) {

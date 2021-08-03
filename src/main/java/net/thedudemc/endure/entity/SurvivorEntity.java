@@ -5,19 +5,20 @@ import net.thedudemc.endure.config.ExperienceConfig;
 import net.thedudemc.endure.config.ThirstConfig;
 import net.thedudemc.endure.gui.SurvivorHud;
 import net.thedudemc.endure.init.EndureConfigs;
+import net.thedudemc.endure.init.EndureData;
 import net.thedudemc.endure.util.EndureUtilities;
+import net.thedudemc.endure.world.data.EntitiesData;
 import net.thedudemc.endure.world.data.SurvivorsData;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.block.Biome;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class SurvivorEntity {
 
@@ -27,7 +28,6 @@ public class SurvivorEntity {
     @Expose private float thirst;
     @Expose private int experience;
     @Expose private double distanceTraveled;
-    @Expose private Set<UUID> spawnedEntities = new HashSet<>();
 
     private int xpNeeded;
     private boolean online;
@@ -149,20 +149,13 @@ public class SurvivorEntity {
     }
 
     private void checkEntitiesRemoved() {
-        UUID idToRemove = null;
-        for (UUID id : this.spawnedEntities) {
-            Entity e = Bukkit.getEntity(id);
-            if (e == null || e.isDead() || !e.isValid()) {
-                idToRemove = id;
-            }
-        }
-        if (idToRemove != null) this.spawnedEntities.remove(idToRemove);
+        List<EndureZombie> entities = EntitiesData.get().getEntities(this.getId());
+        List<EndureZombie> invalid = entities.stream()
+                .filter(entity -> entity.getEntity() != null)
+                .filter(endureEntity -> !endureEntity.getEntity().isValid())
+                .collect(Collectors.toList());
+        EndureData.ENTITIES_DATA.removeEntities(this.getId(), invalid);
     }
-
-    private boolean hasSkyAccess(Location location) {
-        return location.getBlock().getLightFromSky() > 0;
-    }
-
 
     private void causeThirstDamage() {
         if (this.getPlayer().getTicksLived() % ((ThirstConfig) EndureConfigs.get("Thirst")).getThirstDamageInterval() == 0) {
@@ -203,9 +196,5 @@ public class SurvivorEntity {
 
     private void markDirty() {
         SurvivorsData.get().markDirty();
-    }
-
-    public Set<UUID> getSpawnedEntities() {
-        return this.spawnedEntities;
     }
 }
