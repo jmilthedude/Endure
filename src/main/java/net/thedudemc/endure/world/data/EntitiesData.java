@@ -24,6 +24,7 @@ public class EntitiesData extends Data {
 
     public EntitiesData addEntity(UUID playerId, EndureEntity entity) {
         this.getEntities(playerId).add((EndureZombie) entity);
+        this.markDirty();
         return this;
     }
 
@@ -49,6 +50,7 @@ public class EntitiesData extends Data {
                 .stream().filter(endureZombie -> endureZombie.getId().equals(id))
                 .collect(Collectors.toList())
                 .stream().findAny();
+
         return entityOptional.orElse(null);
     }
 
