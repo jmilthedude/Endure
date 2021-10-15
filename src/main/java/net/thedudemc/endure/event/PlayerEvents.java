@@ -60,7 +60,7 @@ public class PlayerEvents implements Listener {
         if (event.isSneaking()) {
             if (event.getPlayer().isSprinting()) survivor.setSliding();
         } else {
-            if(survivor.isSliding()) {
+            if (survivor.isSliding()) {
                 survivor.stopSliding();
             }
         }

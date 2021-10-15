@@ -17,7 +17,7 @@ public class StalkerOrder extends Order {
         double modifier = config.getCrouchSpeedModifier();
         if (player.isSneaking() && !player.isSprinting()) {
             player.setWalkSpeed((float) (0.2f * modifier));
-        } else {
+        } else if (!player.isSneaking()) {
             player.setWalkSpeed(0.2f);
         }
     }

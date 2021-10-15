@@ -180,17 +180,28 @@ public class SurvivorEntity {
 
         if (this.getOrder() != null) this.getOrder().tick(this.getPlayer());
 
-        handleSliding();
+        if (slideCooldown > -1) {
+            slideCooldown--;
+        } else if (slideCooldown == -1) {
+            handleSliding();
+        }
     }
 
     // --------------------- Sliding ---------------- //
 
-    int currentSlideTick = 0;
-    boolean isSliding = false;
-    double currentSlideReduction;
+    private int slideCooldown = -1;
+    private int currentSlideTick = -1;
+    private boolean isSliding = false;
+    private double currentSlideReduction;
 
     public void setSliding() {
-        if (!this.isSliding && this.player.isSprinting()) this.isSliding = true;
+        if (!this.getPlayer().isOnGround()) return;
+        if (slideCooldown != -1) return;
+        if (!this.isSliding && this.getPlayer().isSprinting()) {
+            this.isSliding = true;
+            currentSlideTick = 15;
+            currentSlideReduction = .33d;
+        }
     }
 
     public boolean isSliding() {
@@ -201,19 +212,19 @@ public class SurvivorEntity {
         this.isSliding = false;
         this.currentSlideTick = -1;
         this.currentSlideReduction = .33f;
+        this.slideCooldown = 10;
     }
 
     private void handleSliding() {
-        if (this.isSliding && currentSlideTick == -1) {
-            currentSlideTick = 15;
-            currentSlideReduction = .33d;
-        } else if (player.isSneaking() && player.isSprinting() && isSliding) {
+        if (!this.isSliding) return;
+        if (player.isSneaking() && player.isSprinting() && isSliding) {
             updateSlideReduction();
             player.setVelocity(new Vector(currentSlideReduction, player.getVelocity().getY(), currentSlideReduction).multiply(player.getLocation().getDirection()));
         }
         if (isSliding && currentSlideTick-- == 0) {
             this.stopSliding();
             player.setSprinting(false);
+
         }
     }
 
