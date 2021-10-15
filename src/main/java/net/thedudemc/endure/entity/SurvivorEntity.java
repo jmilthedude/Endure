@@ -208,10 +208,8 @@ public class SurvivorEntity {
             currentSlideTick = 15;
             currentSlideReduction = .33d;
         } else if (player.isSneaking() && player.isSprinting() && isSliding) {
-            System.out.println(currentSlideTick);
             updateSlideReduction();
             player.setVelocity(new Vector(currentSlideReduction, player.getVelocity().getY(), currentSlideReduction).multiply(player.getLocation().getDirection()));
-
         }
         if (isSliding && currentSlideTick-- == 0) {
             this.stopSliding();
