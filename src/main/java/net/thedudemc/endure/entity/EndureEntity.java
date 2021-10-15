@@ -16,7 +16,9 @@ public abstract class EndureEntity {
 
     private LivingEntity entity;
 
-    public abstract void tick();
+    public void tick() {
+        if (shouldGlow() && !this.entity.isGlowing()) this.entity.setGlowing(true);
+    }
 
     public EndureEntity(LivingEntity entity, int level) {
         this.id = entity.getUniqueId();
@@ -49,6 +51,10 @@ public abstract class EndureEntity {
         return ChatColor.RED + String.valueOf((int) Math.ceil(this.getEntity().getHealth())) +
                 ChatColor.RESET + "/" +
                 ChatColor.RED + (int) maxHealth.getValue() + "hp";
+    }
+
+    public boolean shouldGlow() {
+        return true;
     }
 
 }

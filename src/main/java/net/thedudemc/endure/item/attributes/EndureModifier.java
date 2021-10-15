@@ -1,6 +1,8 @@
 package net.thedudemc.endure.item.attributes;
 
+import com.google.gson.annotations.Expose;
 import org.bukkit.ChatColor;
+import org.bukkit.attribute.AttributeModifier;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -9,19 +11,19 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class AttributeModifier {
+public class EndureModifier {
 
-    private final double amount;
-    private final AttributeModifier.Operation operation;
-    private final String name;
-    private final UUID id;
-    private final ChatColor amountColor;
+    @Expose private final double amount;
+    @Expose private final AttributeModifier.Operation operation;
+    @Expose private final String name;
+    @Expose private final UUID id;
+    @Expose private final ChatColor amountColor;
 
-    public AttributeModifier(String nameIn, double amountIn, AttributeModifier.Operation operationIn) {
+    public EndureModifier(String nameIn, double amountIn, AttributeModifier.Operation operationIn) {
         this(getRandomUUID(ThreadLocalRandom.current()), nameIn, amountIn, ChatColor.YELLOW, operationIn);
     }
 
-    public AttributeModifier(UUID uuid, String nameIn, double amountIn, ChatColor amountColor, AttributeModifier.Operation operationIn) {
+    public EndureModifier(UUID uuid, String nameIn, double amountIn, ChatColor amountColor, AttributeModifier.Operation operationIn) {
         this.id = uuid;
         this.name = nameIn;
         this.amount = amountIn;
@@ -29,8 +31,12 @@ public class AttributeModifier {
         this.amountColor = amountColor;
     }
 
-    public AttributeModifier(String nameIn, double amountIn, ChatColor amountColor, AttributeModifier.Operation operationIn) {
+    public EndureModifier(String nameIn, double amountIn, ChatColor amountColor, AttributeModifier.Operation operationIn) {
         this(getRandomUUID(ThreadLocalRandom.current()), nameIn, amountIn, amountColor, operationIn);
+    }
+
+    public AttributeModifier getAttributeModifier() {
+        return new AttributeModifier(this.id, this.name, this.amount, this.operation);
     }
 
     public UUID getID() {
@@ -62,7 +68,7 @@ public class AttributeModifier {
         if (this == p_equals_1_) {
             return true;
         } else if (p_equals_1_ != null && this.getClass() == p_equals_1_.getClass()) {
-            AttributeModifier attributemodifier = (AttributeModifier) p_equals_1_;
+            EndureModifier attributemodifier = (EndureModifier) p_equals_1_;
             return Objects.equals(this.id, attributemodifier.id);
         } else {
             return false;
@@ -75,31 +81,6 @@ public class AttributeModifier {
 
     public String toString() {
         return "AttributeModifier{amount=" + this.amount + ", operation=" + this.operation + ", name='" + (String) this.name + '\'' + ", id=" + this.id + '}';
-    }
-
-    public enum Operation {
-        ADDITION(0),
-        MULTIPLY_BASE(1),
-        MULTIPLY_TOTAL(2);
-
-        private static final AttributeModifier.Operation[] VALUES = new AttributeModifier.Operation[]{ADDITION, MULTIPLY_BASE, MULTIPLY_TOTAL};
-        private final int id;
-
-        Operation(int id) {
-            this.id = id;
-        }
-
-        public int getId() {
-            return this.id;
-        }
-
-        public static AttributeModifier.Operation byId(int id) {
-            if (id >= 0 && id < VALUES.length) {
-                return VALUES[id];
-            } else {
-                throw new IllegalArgumentException("No operation with value " + id);
-            }
-        }
     }
 
     public static UUID getRandomUUID(Random rand) {

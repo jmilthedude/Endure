@@ -3,10 +3,10 @@ package net.thedudemc.endure.init;
 import net.thedudemc.endure.Endure;
 import net.thedudemc.endure.item.EndureItem;
 import net.thedudemc.endure.item.WeaponItem;
-import net.thedudemc.endure.item.attributes.AttributeModifier;
-import net.thedudemc.endure.item.attributes.AttributeModifier.Operation;
+import net.thedudemc.endure.item.attributes.EndureModifier;
 import net.thedudemc.endure.util.Rarity;
 import org.bukkit.Material;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
@@ -24,19 +24,19 @@ public class EndureItems {
     public static void register() {
         DINKY_SWORD = registerItem(new WeaponItem("dinky_sword", "Dinky Sword", Material.WOODEN_SWORD, Rarity.COMMON)
                 .withAttribute(EndureAttributes.BONUS_DAMAGE,
-                        new AttributeModifier(
+                        new EndureModifier(
                                 EndureAttributes.BONUS_DAMAGE.getDisplayName(),
-                                12.0D, Operation.ADDITION))
+                                12.0D, AttributeModifier.Operation.ADD_NUMBER))
                 .withAttribute(EndureAttributes.BASE_DAMAGE,
-                        new AttributeModifier(
+                        new EndureModifier(
                                 EndureAttributes.BASE_DAMAGE.getDisplayName(),
-                                2.0D, Operation.ADDITION))
+                                2.0D, AttributeModifier.Operation.ADD_NUMBER))
         );
         EMPTY_BOTTLE = registerItem(new EndureItem("empty_bottle", "Empty Bottle", Material.GLASS_BOTTLE))
                 .withAttribute(EndureAttributes.MAX_STACK_SIZE,
-                        new AttributeModifier(
+                        new EndureModifier(
                                 EndureAttributes.MAX_STACK_SIZE.getDisplayName(),
-                                2.0D, Operation.ADDITION)
+                                2.0D, AttributeModifier.Operation.ADD_NUMBER)
                 );
 
         FANCY_DIAMOND = registerItem(new EndureItem("fancy_diamond", "Fancy Diamond", Material.DIAMOND, Rarity.EPIC));

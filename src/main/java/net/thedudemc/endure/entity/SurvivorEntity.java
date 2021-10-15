@@ -3,9 +3,11 @@ package net.thedudemc.endure.entity;
 import com.google.gson.annotations.Expose;
 import net.thedudemc.endure.config.ExperienceConfig;
 import net.thedudemc.endure.config.ThirstConfig;
+import net.thedudemc.endure.entity.order.Order;
 import net.thedudemc.endure.gui.SurvivorHud;
 import net.thedudemc.endure.init.EndureConfigs;
 import net.thedudemc.endure.init.EndureData;
+import net.thedudemc.endure.init.EndureOrders;
 import net.thedudemc.endure.util.EndureUtilities;
 import net.thedudemc.endure.world.data.EntitiesData;
 import net.thedudemc.endure.world.data.SurvivorsData;
@@ -15,9 +17,11 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class SurvivorEntity {
@@ -28,6 +32,9 @@ public class SurvivorEntity {
     @Expose private float thirst;
     @Expose private int experience;
     @Expose private double distanceTraveled;
+    @Expose private String orderName;
+    private Order order;
+    private Vector currentVelocity = new Vector(0, 0, 0);
 
     private int xpNeeded;
     private boolean online;
@@ -42,6 +49,22 @@ public class SurvivorEntity {
         this.thirst = thirst;
         this.experience = experience;
         this.hud = new SurvivorHud(this);
+    }
+
+    public Order getOrder() {
+        if (this.order != null) return this.order;
+
+        Supplier<Order> supplier = EndureOrders.get(this.orderName);
+        if (supplier != null) this.order = supplier.get();
+        return order;
+    }
+
+    public String getOrderName() {
+        return orderName;
+    }
+
+    public void setOrderName(String orderName) {
+        this.orderName = orderName;
     }
 
     public UUID getId() {
@@ -119,6 +142,14 @@ public class SurvivorEntity {
         markDirty();
     }
 
+    public Vector getCurrentVelocity() {
+        return currentVelocity;
+    }
+
+    public void setCurrentVelocity(Vector currentVelocity) {
+        this.currentVelocity = currentVelocity;
+    }
+
     public void onLogin(Player player) {
         this.online = true;
         this.player = player;
@@ -146,7 +177,55 @@ public class SurvivorEntity {
         if (this.getPlayer().getGameMode() == GameMode.SURVIVAL) handleThirst();
 
         checkEntitiesRemoved();
+
+        if (this.getOrder() != null) this.getOrder().tick(this.getPlayer());
+
+        handleSliding();
     }
+
+    // --------------------- Sliding ---------------- //
+
+    int currentSlideTick = 0;
+    boolean isSliding = false;
+    double currentSlideReduction;
+
+    public void setSliding() {
+        if (!this.isSliding && this.player.isSprinting()) this.isSliding = true;
+    }
+
+    public boolean isSliding() {
+        return this.isSliding;
+    }
+
+    public void stopSliding() {
+        this.isSliding = false;
+        this.currentSlideTick = -1;
+        this.currentSlideReduction = .33f;
+    }
+
+    private void handleSliding() {
+        if (this.isSliding && currentSlideTick == -1) {
+            currentSlideTick = 15;
+            currentSlideReduction = .33d;
+        } else if (player.isSneaking() && player.isSprinting() && isSliding) {
+            System.out.println(currentSlideTick);
+            updateSlideReduction();
+            player.setVelocity(new Vector(currentSlideReduction, player.getVelocity().getY(), currentSlideReduction).multiply(player.getLocation().getDirection()));
+
+        }
+        if (isSliding && currentSlideTick-- == 0) {
+            this.stopSliding();
+            player.setSprinting(false);
+        }
+    }
+
+    private void updateSlideReduction() {
+        if (currentSlideTick < 5) {
+            currentSlideReduction -= currentSlideTick * .005;
+        }
+    }
+
+    // --------------------- End Sliding ---------------- //
 
     private void checkEntitiesRemoved() {
         List<EndureZombie> entities = EntitiesData.get().getEntities(this.getId());

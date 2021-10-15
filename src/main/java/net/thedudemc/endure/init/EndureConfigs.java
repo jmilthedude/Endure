@@ -7,6 +7,7 @@ import net.thedudemc.endure.config.EnemyConfig;
 import net.thedudemc.endure.config.ExperienceConfig;
 import net.thedudemc.endure.config.GeneralConfig;
 import net.thedudemc.endure.config.ThirstConfig;
+import net.thedudemc.endure.config.order.OrderConfig;
 
 public class EndureConfigs {
 
@@ -17,10 +18,11 @@ public class EndureConfigs {
         REGISTRY.register(new ThirstConfig());
         REGISTRY.register(new ExperienceConfig());
         REGISTRY.register(new EnemyConfig());
+        REGISTRY.register(new OrderConfig());
     }
 
-    public static Config get(String name) {
-        return REGISTRY.getConfig(name);
+    public static <C extends Config> C get(String name) {
+        return (C) REGISTRY.getConfig(name);
     }
 
 }

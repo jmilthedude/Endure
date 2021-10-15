@@ -1,5 +1,7 @@
 package net.thedudemc.endure.event;
 
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.thedudemc.endure.config.ThirstConfig;
 import net.thedudemc.endure.entity.SurvivorEntity;
 import net.thedudemc.endure.init.EndureConfigs;
@@ -24,20 +26,44 @@ public class PlayerEvents implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        SurvivorsData.get().getSurvivor(event.getPlayer().getUniqueId()).onLogin(event.getPlayer());
+        Player player = event.getPlayer();
+        SurvivorEntity survivor = SurvivorsData.get().getSurvivor(player);
+        survivor.onLogin(player);
+
+        if (survivor.getOrderName() == null) {
+            survivor.setOrderName("stalker");
+        }
+
     }
 
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent event) {
-        SurvivorsData.get().getSurvivor(event.getPlayer().getUniqueId()).onLogout();
+        SurvivorsData.get().getSurvivor(event.getPlayer()).onLogout();
     }
+
+
+    private double lastDistance = 0;
 
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
         if (event.getTo() == null) return;
-        SurvivorEntity survivor = SurvivorsData.get().getSurvivor(event.getPlayer().getUniqueId());
+        SurvivorEntity survivor = SurvivorsData.get().getSurvivor(event.getPlayer());
         double distance = event.getFrom().distance(event.getTo());
         survivor.addDistanceTraveled(distance);
+        event.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(String.format("%.2f", distance * 20)));
+    }
+
+    @EventHandler
+    public void onSneak(PlayerToggleSneakEvent event) {
+        SurvivorEntity survivor = SurvivorsData.get().getSurvivor(event.getPlayer());
+
+        if (event.isSneaking()) {
+            if (event.getPlayer().isSprinting()) survivor.setSliding();
+        } else {
+            if(survivor.isSliding()) {
+                survivor.stopSliding();
+            }
+        }
     }
 
     @EventHandler
@@ -49,7 +75,7 @@ public class PlayerEvents implements Listener {
 
         PotionMeta potion = (PotionMeta) meta;
         if (potion.getBasePotionData().getType() != PotionType.WATER) return;
-        SurvivorEntity survivor = SurvivorsData.get().getSurvivor(p.getUniqueId());
+        SurvivorEntity survivor = SurvivorsData.get().getSurvivor(p);
 
         survivor.decreaseThirst((float) (((ThirstConfig) EndureConfigs.get("Thirst")).getPercentThirstPerWaterBottle() / 100f));
         event.setCancelled(true);

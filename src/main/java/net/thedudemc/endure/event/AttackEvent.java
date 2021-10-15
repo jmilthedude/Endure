@@ -125,7 +125,7 @@ public class AttackEvent implements Listener {
         if (event.getEntity().getKiller() == null) return;
         Player p = event.getEntity().getKiller();
         if (p == null) return;
-        SurvivorEntity survivor = SurvivorsData.get().getSurvivor(p.getUniqueId());
+        SurvivorEntity survivor = SurvivorsData.get().getSurvivor(p);
         survivor.addExperience(100);
         event.setDroppedExp(0);
     }

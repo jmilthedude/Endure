@@ -22,7 +22,7 @@ public class LootTableEvent implements Listener {
     public void onLootTable(LootGenerateEvent event) {
         if (!(event.getEntity() instanceof Player)) return;
         Player player = (Player) event.getEntity();
-        SurvivorEntity survivor = SurvivorsData.get().getSurvivor(player.getUniqueId());
+        SurvivorEntity survivor = SurvivorsData.get().getSurvivor(player);
         //TODO: get location and player level and base loot off of that
         Logger.info(event.getLootTable().toString());
         List<ItemStack> items;

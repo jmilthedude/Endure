@@ -1,7 +1,7 @@
 package net.thedudemc.endure.item;
 
 import net.thedudemc.endure.init.EndureAttributes;
-import net.thedudemc.endure.item.attributes.AttributeModifier;
+import net.thedudemc.endure.item.attributes.EndureModifier;
 import net.thedudemc.endure.util.Rarity;
 import org.bukkit.Material;
 
@@ -12,7 +12,7 @@ public class WeaponItem extends EndureItem {
     }
 
     public double getDamage() {
-        AttributeModifier modifier = this.getAttributeModifier(EndureAttributes.BASE_DAMAGE);
+        EndureModifier modifier = this.getAttributeModifier(EndureAttributes.BASE_DAMAGE);
         if (modifier != null) {
             return modifier.getAmount();
         }
@@ -20,7 +20,7 @@ public class WeaponItem extends EndureItem {
     }
 
     public double getBonusDamage() {
-        AttributeModifier modifier = this.getAttributeModifier(EndureAttributes.BONUS_DAMAGE);
+        EndureModifier modifier = this.getAttributeModifier(EndureAttributes.BONUS_DAMAGE);
         if (modifier != null) {
             return modifier.getAmount();
         }

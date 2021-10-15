@@ -21,6 +21,8 @@ public class EndureSetup {
         Logger.info("Events registered.");
         EndureTasks.register();
         Logger.info("Tasks registered.");
+        EndureOrders.register();
+        Logger.info("Orders registered.");
 
     }
 }

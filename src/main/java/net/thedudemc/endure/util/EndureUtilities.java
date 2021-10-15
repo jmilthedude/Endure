@@ -3,7 +3,7 @@ package net.thedudemc.endure.util;
 import net.thedudemc.endure.init.EndureAttributes;
 import net.thedudemc.endure.init.EndureItems;
 import net.thedudemc.endure.item.EndureItem;
-import net.thedudemc.endure.item.attributes.AttributeModifier;
+import net.thedudemc.endure.item.attributes.EndureModifier;
 import org.bukkit.Material;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -19,7 +19,7 @@ public class EndureUtilities {
             if (stackInSlot != null && stack.getType() == stackInSlot.getType()) {
                 EndureItem item = EndureItems.getItemFromStack(stackInSlot);
                 if (item != null) {
-                    AttributeModifier modifier = item.getAttributeModifier(EndureAttributes.MAX_STACK_SIZE);
+                    EndureModifier modifier = item.getAttributeModifier(EndureAttributes.MAX_STACK_SIZE);
                     if (modifier != null) {
                         int max = (int) modifier.getAmount();
                         if (stackInSlot.getAmount() < max) {
@@ -48,7 +48,7 @@ public class EndureUtilities {
             EndureItem item = EndureItems.getItemFromStack(stack);
             if (item == null) continue;
             int currentAmount = stack.getAmount();
-            AttributeModifier modifier = item.getAttributeModifier(EndureAttributes.MAX_STACK_SIZE);
+            EndureModifier modifier = item.getAttributeModifier(EndureAttributes.MAX_STACK_SIZE);
             if (modifier == null) continue;
 
             int maxStackSize = (int) item.getAttributeModifier(EndureAttributes.MAX_STACK_SIZE).getAmount();

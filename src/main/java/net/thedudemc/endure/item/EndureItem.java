@@ -2,7 +2,7 @@ package net.thedudemc.endure.item;
 
 import net.thedudemc.endure.Endure;
 import net.thedudemc.endure.item.attributes.Attribute;
-import net.thedudemc.endure.item.attributes.AttributeModifier;
+import net.thedudemc.endure.item.attributes.EndureModifier;
 import net.thedudemc.endure.util.Rarity;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -23,7 +23,7 @@ public class EndureItem {
     private final Material material;
     private final Rarity rarity;
 
-    protected HashMap<Attribute, AttributeModifier> attributeModifiers = new HashMap<>();
+    protected HashMap<Attribute, EndureModifier> attributeModifiers = new HashMap<>();
 
     public EndureItem(String id, String displayName, Material material, Rarity rarity) {
         this.displayName = displayName;
@@ -73,7 +73,7 @@ public class EndureItem {
         if (!attributeModifiers.isEmpty()) {
             info.add(" ");
             for (Attribute attribute : this.attributeModifiers.keySet()) {
-                AttributeModifier modifier = attributeModifiers.get(attribute);
+                EndureModifier modifier = attributeModifiers.get(attribute);
                 info.add(modifier.getName() + ": " + modifier.getAmountString());
             }
         }
@@ -95,16 +95,16 @@ public class EndureItem {
         return stack;
     }
 
-    public EndureItem withAttribute(Attribute attribute, AttributeModifier modifier) {
+    public EndureItem withAttribute(Attribute attribute, EndureModifier modifier) {
         attributeModifiers.put(attribute, modifier);
         return this;
     }
 
-    public AttributeModifier getAttributeModifier(Attribute attribute) {
+    public EndureModifier getAttributeModifier(Attribute attribute) {
         return attributeModifiers.get(attribute);
     }
 
-    public HashMap<Attribute, AttributeModifier> getAttributeModifiers() {
+    public HashMap<Attribute, EndureModifier> getAttributeModifiers() {
         return attributeModifiers;
     }
 

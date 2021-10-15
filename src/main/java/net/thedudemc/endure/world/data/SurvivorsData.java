@@ -3,6 +3,7 @@ package net.thedudemc.endure.world.data;
 import com.google.gson.annotations.Expose;
 import net.thedudemc.endure.entity.SurvivorEntity;
 import net.thedudemc.endure.init.EndureData;
+import org.bukkit.entity.Player;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -32,7 +33,11 @@ public class SurvivorsData extends Data {
         return this;
     }
 
-    public SurvivorEntity getSurvivor(UUID uuid) {
+    public SurvivorEntity getSurvivor(Player player) {
+        return this.getSurvivor(player.getUniqueId());
+    }
+
+    private SurvivorEntity getSurvivor(UUID uuid) {
         SurvivorEntity survivor = survivors.computeIfAbsent(uuid, id -> new SurvivorEntity(id, 1, 1.0f, 0));
         markDirty();
         return survivor;

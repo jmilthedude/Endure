@@ -27,7 +27,7 @@ public class Endure extends JavaPlugin {
         EndureSetup.initialize();
 
         //in case of reload, add players back to cache
-        Bukkit.getOnlinePlayers().forEach(player -> SurvivorsData.get().getSurvivor(player.getUniqueId()).onLogin(player));
+        Bukkit.getOnlinePlayers().forEach(player -> SurvivorsData.get().getSurvivor(player).onLogin(player));
 
     }
 
