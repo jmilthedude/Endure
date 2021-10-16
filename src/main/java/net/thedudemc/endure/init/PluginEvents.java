@@ -2,9 +2,10 @@ package net.thedudemc.endure.init;
 
 import net.thedudemc.endure.Endure;
 import net.thedudemc.endure.event.*;
+import net.thedudemc.endure.util.Logger;
 import org.bukkit.event.Listener;
 
-public class EndureEvents {
+public class PluginEvents {
     public static void register() {
         registerEvent(new PlayerEvents());
         registerEvent(new WorldEvents());
@@ -12,9 +13,12 @@ public class EndureEvents {
         registerEvent(new LootTableEvent());
         registerEvent(new ItemEvents());
         registerEvent(new EntityEvents());
+        registerEvent(new MagicEvents());
+
+        Logger.info("Events registered.");
     }
 
-    private static void registerEvent(Listener event) {
+    public static void registerEvent(Listener event) {
         Endure.getInstance().getServer().getPluginManager().registerEvents(event, Endure.getInstance());
     }
 }

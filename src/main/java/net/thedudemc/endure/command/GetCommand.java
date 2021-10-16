@@ -1,6 +1,6 @@
 package net.thedudemc.endure.command;
 
-import net.thedudemc.endure.init.EndureItems;
+import net.thedudemc.endure.init.PluginItems;
 import net.thedudemc.endure.item.EndureItem;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -21,7 +21,7 @@ public class GetCommand extends Command {
         if(args.length == 1) {
             Player p = (Player) sender;
             String id = args[0];
-            EndureItem item = EndureItems.getItemById(id);
+            EndureItem item = PluginItems.getItemById(id);
             if (item != null) {
                 p.getInventory().addItem(item.getItemStack());
             }
@@ -33,10 +33,10 @@ public class GetCommand extends Command {
         if(args.length == 1) {
             return StringUtil.copyPartialMatches(args[0], new ArrayList<>() {
                         {
-                            this.addAll(EndureItems.REGISTRY.keySet());
+                            this.addAll(PluginItems.REGISTRY.keySet());
                         }
                     },
-                    new ArrayList<>(EndureItems.REGISTRY.size()));
+                    new ArrayList<>(PluginItems.REGISTRY.size()));
         }
         return super.onTabComplete(sender, command, alias, args);
     }

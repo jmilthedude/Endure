@@ -1,11 +1,11 @@
 package net.thedudemc.endure.event;
 
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.thedudemc.endure.config.ThirstConfig;
 import net.thedudemc.endure.entity.SurvivorEntity;
-import net.thedudemc.endure.init.EndureConfigs;
-import net.thedudemc.endure.init.EndureItems;
+import net.thedudemc.endure.init.PluginConfigs;
+import net.thedudemc.endure.init.PluginItems;
+import net.thedudemc.endure.init.PluginOrders;
+import net.thedudemc.endure.util.Logger;
 import net.thedudemc.endure.world.data.SurvivorsData;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
@@ -28,21 +28,19 @@ public class PlayerEvents implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         SurvivorEntity survivor = SurvivorsData.get().getSurvivor(player);
-        survivor.onLogin(player);
+        survivor.login(player);
 
-        if (survivor.getOrderName() == null) {
-            survivor.setOrderName("stalker");
+        if (survivor.getOrder() == null) {
+            Logger.info("Setting Default Order");
+            survivor.setOrder(PluginOrders.MAGE.get());
+            survivor.getOrder().apply(player);
         }
-
     }
 
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent event) {
-        SurvivorsData.get().getSurvivor(event.getPlayer()).onLogout();
+        SurvivorsData.get().getSurvivor(event.getPlayer()).logout();
     }
-
-
-    private double lastDistance = 0;
 
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
@@ -50,7 +48,6 @@ public class PlayerEvents implements Listener {
         SurvivorEntity survivor = SurvivorsData.get().getSurvivor(event.getPlayer());
         double distance = event.getFrom().distance(event.getTo());
         survivor.addDistanceTraveled(distance);
-        event.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(String.format("%.2f", distance * 20)));
     }
 
     @EventHandler
@@ -77,12 +74,12 @@ public class PlayerEvents implements Listener {
         if (potion.getBasePotionData().getType() != PotionType.WATER) return;
         SurvivorEntity survivor = SurvivorsData.get().getSurvivor(p);
 
-        survivor.decreaseThirst((float) (((ThirstConfig) EndureConfigs.get("Thirst")).getPercentThirstPerWaterBottle() / 100f));
+        survivor.decreaseThirst((float) (((ThirstConfig) PluginConfigs.get("Thirst")).getPercentThirstPerWaterBottle() / 100f));
         event.setCancelled(true);
         if (p.getInventory().getItemInMainHand().isSimilar(stack))
-            p.getInventory().setItemInMainHand(EndureItems.EMPTY_BOTTLE.getItemStack());
+            p.getInventory().setItemInMainHand(PluginItems.EMPTY_BOTTLE.getItemStack());
         else if (p.getInventory().getItemInOffHand().isSimilar(stack))
-            p.getInventory().setItemInOffHand(EndureItems.EMPTY_BOTTLE.getItemStack());
+            p.getInventory().setItemInOffHand(PluginItems.EMPTY_BOTTLE.getItemStack());
 
     }
 
@@ -108,6 +105,12 @@ public class PlayerEvents implements Listener {
         }
         stack.setAmount(0);
         player.updateInventory();
+    }
+
+    @EventHandler
+    public void onRespawn(PlayerRespawnEvent event) {
+        SurvivorEntity survivor = SurvivorsData.get().getSurvivor(event.getPlayer());
+        survivor.setThirst(1.0f);
     }
 
 }

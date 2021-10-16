@@ -1,8 +1,7 @@
 package net.thedudemc.endure;
 
-import net.thedudemc.endure.init.EndureData;
-import net.thedudemc.endure.init.EndureSetup;
-import net.thedudemc.endure.world.data.Data;
+import net.thedudemc.endure.init.*;
+import net.thedudemc.endure.util.Logger;
 import net.thedudemc.endure.world.data.SurvivorsData;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
@@ -24,16 +23,30 @@ public class Endure extends JavaPlugin {
     public void onEnable() {
         if (INSTANCE == null) INSTANCE = this;
 
-        EndureSetup.initialize();
+        initialize();
 
         //in case of reload, add players back to cache
-        Bukkit.getOnlinePlayers().forEach(player -> SurvivorsData.get().getSurvivor(player).onLogin(player));
+        Bukkit.getOnlinePlayers().forEach(player -> SurvivorsData.get().getSurvivor(player).login(player));
 
+    }
+
+    private static void initialize() {
+        Logger.info("Initializing...");
+
+        PluginConfigs.register();
+        PluginItems.register();
+        PluginOrders.register();
+        PluginSpells.register();
+        PluginLoot.register();
+        PluginCommands.register();
+        PluginEvents.register();
+        PluginTasks.register();
+        PluginData.register();
     }
 
     @Override
     public void onDisable() {
-        EndureData.REGISTRY.values().forEach(Data::save);
+        PluginData.REGISTRY.values().forEach(net.thedudemc.endure.world.data.Data::save);
     }
 
     public static NamespacedKey getKey(String name) {

@@ -3,11 +3,12 @@ package net.thedudemc.endure.entity;
 import com.google.gson.annotations.Expose;
 import net.thedudemc.endure.config.ExperienceConfig;
 import net.thedudemc.endure.config.ThirstConfig;
-import net.thedudemc.endure.entity.order.Order;
 import net.thedudemc.endure.gui.SurvivorHud;
-import net.thedudemc.endure.init.EndureConfigs;
-import net.thedudemc.endure.init.EndureData;
-import net.thedudemc.endure.init.EndureOrders;
+import net.thedudemc.endure.init.PluginConfigs;
+import net.thedudemc.endure.init.PluginData;
+import net.thedudemc.endure.order.IMage;
+import net.thedudemc.endure.order.Order;
+import net.thedudemc.endure.spells.Spell;
 import net.thedudemc.endure.util.EndureUtilities;
 import net.thedudemc.endure.world.data.EntitiesData;
 import net.thedudemc.endure.world.data.SurvivorsData;
@@ -19,12 +20,12 @@ import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class SurvivorEntity {
+public class SurvivorEntity implements IMage {
 
     @Expose private final UUID uuid;
     @Expose private final String name;
@@ -32,9 +33,11 @@ public class SurvivorEntity {
     @Expose private float thirst;
     @Expose private int experience;
     @Expose private double distanceTraveled;
-    @Expose private String orderName;
-    private Order order;
-    private Vector currentVelocity = new Vector(0, 0, 0);
+    @Expose private int currentMP;
+    @Expose private int maxMP;
+    @Expose private Order order;
+    @Expose private Spell currentSpell;
+    @Expose private List<Spell> learnedSpells = new ArrayList<>();
 
     private int xpNeeded;
     private boolean online;
@@ -49,22 +52,41 @@ public class SurvivorEntity {
         this.thirst = thirst;
         this.experience = experience;
         this.hud = new SurvivorHud(this);
+        this.maxMP = 100;
+        this.currentMP = this.maxMP;
+    }
+
+    public void tick() {
+        if (this.hud == null) this.hud = new SurvivorHud(this);
+        this.hud.updateStatsSidePane();
+        this.hud.updateStatBars();
+
+        EndureUtilities.ensureStackSizes(this.getPlayer());
+
+        if (this.getPlayer().getGameMode() == GameMode.SURVIVAL && !this.getPlayer().isInWater()) handleThirst();
+
+        checkEntitiesRemoved();
+
+        if (this.getOrder() != null) this.getOrder().tick(this.getPlayer());
+
+        if (slideCooldown > -1) {
+            slideCooldown--;
+        } else if (slideCooldown == -1) {
+            handleSliding();
+        }
+
+        if (this.getPlayer().getTicksLived() % 20 == 0) {
+            increaseMP(1);
+        }
     }
 
     public Order getOrder() {
-        if (this.order != null) return this.order;
-
-        Supplier<Order> supplier = EndureOrders.get(this.orderName);
-        if (supplier != null) this.order = supplier.get();
         return order;
     }
 
-    public String getOrderName() {
-        return orderName;
-    }
-
-    public void setOrderName(String orderName) {
-        this.orderName = orderName;
+    public void setOrder(Order order) {
+        this.order = order;
+        this.markDirty();
     }
 
     public UUID getId() {
@@ -127,14 +149,18 @@ public class SurvivorEntity {
             this.getPlayer().playSound(this.getPlayer().getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.5f, 1.0f);
         }
 
-        this.hud.updateExperienceBar(this.xpNeeded);
+        this.hud.updateExperienceBar();
 
         markDirty();
     }
 
     private void updateXpNeeded() {
-        ExperienceConfig config = (ExperienceConfig) EndureConfigs.get("Experience");
+        ExperienceConfig config = PluginConfigs.get("Experience");
         this.xpNeeded = config.getExperienceNeeded(this.getLevel());
+    }
+
+    public int getXpNeeded() {
+        return xpNeeded;
     }
 
     public void addDistanceTraveled(double distance) {
@@ -142,22 +168,14 @@ public class SurvivorEntity {
         markDirty();
     }
 
-    public Vector getCurrentVelocity() {
-        return currentVelocity;
-    }
-
-    public void setCurrentVelocity(Vector currentVelocity) {
-        this.currentVelocity = currentVelocity;
-    }
-
-    public void onLogin(Player player) {
+    public void login(Player player) {
         this.online = true;
         this.player = player;
         updateXpNeeded();
         this.markDirty();
     }
 
-    public void onLogout() {
+    public void logout() {
         this.online = false;
         this.hud = null;
         this.markDirty();
@@ -167,23 +185,61 @@ public class SurvivorEntity {
         return online;
     }
 
-    public void tick() {
-        if (this.hud == null) this.hud = new SurvivorHud(this);
-        this.hud.updateStats();
-        this.hud.updateExperienceBar(xpNeeded);
+    @Override
+    public void learnSpell(Spell spell) {
+        this.learnedSpells.add(spell);
+        this.markDirty();
+    }
 
-        EndureUtilities.ensureStackSizes(this.getPlayer());
+    @Override
+    public int getCurrentMP() {
+        return currentMP;
+    }
 
-        if (this.getPlayer().getGameMode() == GameMode.SURVIVAL) handleThirst();
+    @Override
+    public int getMaxMP() {
+        return maxMP;
+    }
 
-        checkEntitiesRemoved();
+    @Override
+    public void decreaseMP(int amount) {
+        this.currentMP = Math.max(0, currentMP - amount);
+        this.hud.updateMagicBar();
+        this.markDirty();
+    }
 
-        if (this.getOrder() != null) this.getOrder().tick(this.getPlayer());
+    @Override
+    public void increaseMP(int amount) {
+        this.currentMP = Math.min(currentMP + amount, maxMP);
+        this.hud.updateMagicBar();
+        this.markDirty();
+    }
 
-        if (slideCooldown > -1) {
-            slideCooldown--;
-        } else if (slideCooldown == -1) {
-            handleSliding();
+    @Override
+    public void addMaxMP(int amount) {
+        this.maxMP += amount;
+        this.markDirty();
+    }
+
+    @Override
+    public Spell getCurrentSpell() {
+        if (currentSpell == null && !learnedSpells.isEmpty()) {
+            currentSpell = learnedSpells.get(0);
+            this.markDirty();
+        }
+        return currentSpell;
+    }
+
+    @Override
+    public List<Spell> getLearnedSpells() {
+        return this.learnedSpells;
+    }
+
+    @Override
+    public void setCurrentSpell(Spell spell) {
+        if (getLearnedSpells().contains(spell)) {
+            this.currentSpell = spell;
+            this.markDirty();
         }
     }
 
@@ -242,20 +298,15 @@ public class SurvivorEntity {
                 .filter(entity -> entity.getEntity() != null)
                 .filter(endureEntity -> !endureEntity.getEntity().isValid())
                 .collect(Collectors.toList());
-        EndureData.ENTITIES_DATA.removeEntities(this.getId(), invalid);
+        PluginData.ENTITIES_DATA.removeEntities(this.getId(), invalid);
     }
 
-    private void causeThirstDamage() {
-        if (this.getPlayer().getTicksLived() % ((ThirstConfig) EndureConfigs.get("Thirst")).getThirstDamageInterval() == 0) {
-            this.getPlayer().damage(((ThirstConfig) EndureConfigs.get("Thirst")).getThirstDamageAmount());
-        }
-    }
 
     private void handleThirst() {
         Player p = this.getPlayer();
         Location location = p.getLocation();
         Biome biome = p.getWorld().getBiome(location.getBlockX(), location.getBlockY(), location.getBlockZ());
-        ThirstConfig config = (ThirstConfig) EndureConfigs.get("Thirst");
+        ThirstConfig config = PluginConfigs.get("Thirst");
         double biomeModifier = config.getBiomeModifier(biome.name().toLowerCase());
         if (config.shouldTickWhileStanding()) {
             int interval = config.getTickInterval();
@@ -275,6 +326,12 @@ public class SurvivorEntity {
         }
     }
 
+    private void causeThirstDamage() {
+        if (this.getPlayer().getTicksLived() % ((ThirstConfig) PluginConfigs.get("Thirst")).getThirstDamageInterval() == 0) {
+            this.getPlayer().damage(((ThirstConfig) PluginConfigs.get("Thirst")).getThirstDamageAmount());
+        }
+    }
+
 
     public Player getPlayer() {
         if (this.player != null) return this.player;
@@ -285,4 +342,5 @@ public class SurvivorEntity {
     private void markDirty() {
         SurvivorsData.get().markDirty();
     }
+
 }

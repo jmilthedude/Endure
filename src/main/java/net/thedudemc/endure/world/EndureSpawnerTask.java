@@ -3,9 +3,11 @@ package net.thedudemc.endure.world;
 import net.thedudemc.endure.config.EnemyConfig;
 import net.thedudemc.endure.entity.EndureZombie;
 import net.thedudemc.endure.entity.SurvivorEntity;
-import net.thedudemc.endure.init.EndureConfigs;
+import net.thedudemc.endure.init.PluginConfigs;
 import net.thedudemc.endure.world.data.EntitiesData;
 import net.thedudemc.endure.world.data.SurvivorsData;
+import org.bukkit.Bukkit;
+import org.bukkit.Difficulty;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.data.type.Leaves;
@@ -18,7 +20,7 @@ import java.util.Random;
 public class EndureSpawnerTask implements Runnable {
 
     private void attemptSpawnZombie(SurvivorEntity survivor) {
-        EnemyConfig config = (EnemyConfig) EndureConfigs.get("Enemies");
+        EnemyConfig config = PluginConfigs.get("Enemies");
 
         EntitiesData entityData = EntitiesData.get();
         int spawnedEntityCount = entityData.getEntities(survivor.getId()).size();
@@ -84,6 +86,7 @@ public class EndureSpawnerTask implements Runnable {
 
     @Override
     public void run() {
+        if (Bukkit.getWorlds().get(0).getDifficulty() == Difficulty.PEACEFUL) return;
         SurvivorsData.get().getSurvivors().stream().filter(SurvivorEntity::isOnline).forEach(this::attemptSpawnZombie);
     }
 }

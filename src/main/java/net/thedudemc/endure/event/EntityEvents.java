@@ -1,11 +1,13 @@
 package net.thedudemc.endure.event;
 
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Zombie;
+import org.bukkit.Sound;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityCombustEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
+import org.bukkit.event.entity.ExplosionPrimeEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 
 public class EntityEvents implements Listener {
 
@@ -24,4 +26,5 @@ public class EntityEvents implements Listener {
     public void onFire(EntityCombustEvent event) {
         if (event.getEntity() instanceof Zombie) event.setCancelled(true);
     }
+
 }

@@ -1,7 +1,7 @@
 package net.thedudemc.endure.loot.base;
 
 import com.google.gson.annotations.Expose;
-import net.thedudemc.endure.init.EndureItems;
+import net.thedudemc.endure.init.PluginItems;
 import net.thedudemc.endure.item.EndureItem;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -25,7 +25,7 @@ public class LootItem {
     }
 
     public ItemStack get() {
-        EndureItem item = EndureItems.getItemById(this.id);
+        EndureItem item = PluginItems.getItemById(this.id);
         if (item != null) return item.getItemStack(this.count);
 
         Material vanillaMaterial = Material.matchMaterial(this.id);

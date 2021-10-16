@@ -3,12 +3,12 @@ package net.thedudemc.endure.world.data;
 import com.google.gson.annotations.Expose;
 import net.thedudemc.endure.entity.EndureEntity;
 import net.thedudemc.endure.entity.EndureZombie;
-import net.thedudemc.endure.init.EndureData;
+import net.thedudemc.endure.init.PluginData;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class EntitiesData extends Data {
+public class EntitiesData extends net.thedudemc.endure.world.data.Data {
 
     @Expose private final HashMap<UUID, List<EndureZombie>> entities = new HashMap<>();
 
@@ -40,7 +40,7 @@ public class EntitiesData extends Data {
     }
 
     public static EntitiesData get() {
-        return EndureData.ENTITIES_DATA;
+        return PluginData.ENTITIES_DATA;
     }
 
     public EndureEntity getEntity(UUID id) {

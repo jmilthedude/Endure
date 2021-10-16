@@ -2,7 +2,7 @@ package net.thedudemc.endure.world.data;
 
 import com.google.gson.annotations.Expose;
 import net.thedudemc.endure.entity.SurvivorEntity;
-import net.thedudemc.endure.init.EndureData;
+import net.thedudemc.endure.init.PluginData;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
@@ -27,12 +27,6 @@ public class SurvivorsData extends Data {
         });
     }
 
-    public SurvivorsData addSurvivor(UUID uuid, SurvivorEntity survivor) {
-        survivors.put(uuid, survivor);
-        markDirty();
-        return this;
-    }
-
     public SurvivorEntity getSurvivor(Player player) {
         return this.getSurvivor(player.getUniqueId());
     }
@@ -48,7 +42,7 @@ public class SurvivorsData extends Data {
     }
 
     public static SurvivorsData get() {
-        return EndureData.SURVIVORS_DATA;
+        return PluginData.SURVIVORS_DATA;
     }
 
 }

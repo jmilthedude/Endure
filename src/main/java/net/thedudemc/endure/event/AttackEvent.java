@@ -3,7 +3,7 @@ package net.thedudemc.endure.event;
 import net.thedudemc.endure.Endure;
 import net.thedudemc.endure.entity.EndureEntity;
 import net.thedudemc.endure.entity.SurvivorEntity;
-import net.thedudemc.endure.init.EndureItems;
+import net.thedudemc.endure.init.PluginItems;
 import net.thedudemc.endure.item.EndureItem;
 import net.thedudemc.endure.item.WeaponItem;
 import net.thedudemc.endure.world.data.EntitiesData;
@@ -35,7 +35,7 @@ public class AttackEvent implements Listener {
         LivingEntity target = (LivingEntity) event.getEntity();
 
         ItemStack stack = player.getInventory().getItemInMainHand();
-        EndureItem item = EndureItems.getItemFromStack(stack);
+        EndureItem item = PluginItems.getItemFromStack(stack);
 
         if (item instanceof WeaponItem) {
             WeaponItem sword = (WeaponItem) item;

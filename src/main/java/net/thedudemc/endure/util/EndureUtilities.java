@@ -1,7 +1,7 @@
 package net.thedudemc.endure.util;
 
-import net.thedudemc.endure.init.EndureAttributes;
-import net.thedudemc.endure.init.EndureItems;
+import net.thedudemc.endure.init.PluginAttributes;
+import net.thedudemc.endure.init.PluginItems;
 import net.thedudemc.endure.item.EndureItem;
 import net.thedudemc.endure.item.attributes.EndureModifier;
 import org.bukkit.Material;
@@ -17,9 +17,9 @@ public class EndureUtilities {
         for (int i = 0; i < 36; i++) {
             ItemStack stackInSlot = inventory.getItem(i);
             if (stackInSlot != null && stack.getType() == stackInSlot.getType()) {
-                EndureItem item = EndureItems.getItemFromStack(stackInSlot);
+                EndureItem item = PluginItems.getItemFromStack(stackInSlot);
                 if (item != null) {
-                    EndureModifier modifier = item.getAttributeModifier(EndureAttributes.MAX_STACK_SIZE);
+                    EndureModifier modifier = item.getAttributeModifier(PluginAttributes.MAX_STACK_SIZE);
                     if (modifier != null) {
                         int max = (int) modifier.getAmount();
                         if (stackInSlot.getAmount() < max) {
@@ -45,13 +45,13 @@ public class EndureUtilities {
     public static void ensureStackSizes(Player player) {
         for (ItemStack stack : player.getInventory()) {
             if (stack == null || stack.getType() == Material.AIR) continue;
-            EndureItem item = EndureItems.getItemFromStack(stack);
+            EndureItem item = PluginItems.getItemFromStack(stack);
             if (item == null) continue;
             int currentAmount = stack.getAmount();
-            EndureModifier modifier = item.getAttributeModifier(EndureAttributes.MAX_STACK_SIZE);
+            EndureModifier modifier = item.getAttributeModifier(PluginAttributes.MAX_STACK_SIZE);
             if (modifier == null) continue;
 
-            int maxStackSize = (int) item.getAttributeModifier(EndureAttributes.MAX_STACK_SIZE).getAmount();
+            int maxStackSize = (int) item.getAttributeModifier(PluginAttributes.MAX_STACK_SIZE).getAmount();
             if (currentAmount > maxStackSize) {
                 int excess = currentAmount - maxStackSize;
                 stack.setAmount(maxStackSize);

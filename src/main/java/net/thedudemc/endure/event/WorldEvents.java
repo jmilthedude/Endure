@@ -1,7 +1,6 @@
 package net.thedudemc.endure.event;
 
-import net.thedudemc.endure.init.EndureData;
-import net.thedudemc.endure.world.data.Data;
+import net.thedudemc.endure.init.PluginData;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
@@ -11,7 +10,7 @@ public class WorldEvents implements Listener {
 
     @EventHandler
     public void onSave(WorldSaveEvent event) {
-        EndureData.REGISTRY.values().forEach(Data::save);
+        PluginData.REGISTRY.values().forEach(net.thedudemc.endure.world.data.Data::save);
     }
 
     @EventHandler

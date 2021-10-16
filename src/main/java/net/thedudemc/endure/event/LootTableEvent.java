@@ -1,7 +1,7 @@
 package net.thedudemc.endure.event;
 
 import net.thedudemc.endure.entity.SurvivorEntity;
-import net.thedudemc.endure.init.EndureLoot;
+import net.thedudemc.endure.init.PluginLoot;
 import net.thedudemc.endure.loot.base.LootItem;
 import net.thedudemc.endure.util.Logger;
 import net.thedudemc.endure.util.MathUtilities;
@@ -27,12 +27,12 @@ public class LootTableEvent implements Listener {
         Logger.info(event.getLootTable().toString());
         List<ItemStack> items;
         if (survivor.getLevel() < 5) {
-            items = EndureLoot.COMMON.getLoot(MathUtilities.getRandomInt(0, 3)).stream()
+            items = PluginLoot.COMMON.getLoot(MathUtilities.getRandomInt(0, 3)).stream()
                     .map(LootItem::get)
                     .collect(Collectors.toList()
                     );
         } else if (survivor.getLevel() < 10) {
-            items = EndureLoot.UNCOMMON.getLoot(MathUtilities.getRandomInt(0, 3)).stream()
+            items = PluginLoot.UNCOMMON.getLoot(MathUtilities.getRandomInt(0, 3)).stream()
                     .map(LootItem::get)
                     .collect(Collectors.toList()
                     );

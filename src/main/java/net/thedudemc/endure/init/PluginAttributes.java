@@ -5,7 +5,7 @@ import net.thedudemc.endure.item.attributes.RangedAttribute;
 
 import java.util.HashMap;
 
-public class EndureAttributes {
+public class PluginAttributes {
 
     public static HashMap<String, Attribute> ATTRIBUTES = new HashMap<>();
 

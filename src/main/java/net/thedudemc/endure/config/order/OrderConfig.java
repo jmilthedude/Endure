@@ -5,8 +5,9 @@ import net.thedudemc.dudeconfig.config.Config;
 
 public class OrderConfig extends Config {
 
-    @Expose private StalkerConfig stalkerConfig;
-    @Expose private BruteConfig bruteConfig;
+    @Expose private StalkerConfig stalker;
+    @Expose private BruteConfig brute;
+    @Expose private MageConfig mage;
 
     @Override
     protected String getName() {
@@ -15,15 +16,20 @@ public class OrderConfig extends Config {
 
     @Override
     protected void reset() {
-        this.stalkerConfig = new StalkerConfig();
-        this.bruteConfig = new BruteConfig(.75d);
+        this.stalker = new StalkerConfig();
+        this.brute = new BruteConfig();
+        this.mage = new MageConfig();
     }
 
     public StalkerConfig getStalkerConfig() {
-        return stalkerConfig;
+        return stalker;
     }
 
     public BruteConfig getBruteConfig() {
-        return bruteConfig;
+        return brute;
+    }
+
+    public MageConfig getMageConfig() {
+        return mage;
     }
 }

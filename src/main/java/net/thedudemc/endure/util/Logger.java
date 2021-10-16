@@ -8,7 +8,7 @@ public class Logger {
 
     public static void info(String msg) {
         StringBuilder sb = new StringBuilder();
-        sb.append(ChatColor.AQUA);
+        sb.append(ChatColor.DARK_RED);
         sb.append("[").append(Endure.getPluginName()).append("] ");
         sb.append(ChatColor.RESET);
         sb.append(msg);
@@ -17,7 +17,7 @@ public class Logger {
 
     public static void error(String msg) {
         StringBuilder sb = new StringBuilder();
-        sb.append(ChatColor.AQUA);
+        sb.append(ChatColor.DARK_RED);
         sb.append("[").append(Endure.getPluginName()).append("] ");
         sb.append(ChatColor.RED);
         sb.append(msg);
