@@ -35,8 +35,6 @@ public class Endure extends JavaPlugin {
 
         PluginConfigs.register();
         PluginItems.register();
-        PluginOrders.register();
-        PluginSpells.register();
         PluginLoot.register();
         PluginCommands.register();
         PluginEvents.register();

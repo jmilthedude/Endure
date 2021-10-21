@@ -4,8 +4,6 @@ import net.thedudemc.endure.config.ThirstConfig;
 import net.thedudemc.endure.entity.SurvivorEntity;
 import net.thedudemc.endure.init.PluginConfigs;
 import net.thedudemc.endure.init.PluginItems;
-import net.thedudemc.endure.init.PluginOrders;
-import net.thedudemc.endure.util.Logger;
 import net.thedudemc.endure.world.data.SurvivorsData;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
@@ -29,12 +27,6 @@ public class PlayerEvents implements Listener {
         Player player = event.getPlayer();
         SurvivorEntity survivor = SurvivorsData.get().getSurvivor(player);
         survivor.login(player);
-
-        if (survivor.getOrder() == null) {
-            Logger.info("Setting Default Order");
-            survivor.setOrder(PluginOrders.MAGE.get());
-            survivor.getOrder().apply(player);
-        }
     }
 
     @EventHandler
@@ -68,9 +60,8 @@ public class PlayerEvents implements Listener {
         Player p = event.getPlayer();
         ItemStack stack = event.getItem();
         ItemMeta meta = stack.getItemMeta();
-        if (!(meta instanceof PotionMeta)) return;
+        if (!(meta instanceof PotionMeta potion)) return;
 
-        PotionMeta potion = (PotionMeta) meta;
         if (potion.getBasePotionData().getType() != PotionType.WATER) return;
         SurvivorEntity survivor = SurvivorsData.get().getSurvivor(p);
 

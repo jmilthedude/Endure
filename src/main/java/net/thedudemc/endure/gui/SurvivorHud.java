@@ -17,7 +17,6 @@ import java.util.HashMap;
 public class SurvivorHud {
 
     private Scoreboard stats;
-    private BossBar experienceBar;
     private HashMap<String, BossBar> statBars = new HashMap<>();
     private final SurvivorEntity survivor;
 
@@ -25,7 +24,6 @@ public class SurvivorHud {
         this.survivor = survivor;
         setupStats();
         createStatBar("Experience", "xp", BarColor.GREEN);
-        createStatBar("Magic", "magic", BarColor.BLUE);
     }
 
     private void setupStats() {
@@ -69,7 +67,6 @@ public class SurvivorHud {
 
     public void updateStatBars() {
         this.updateExperienceBar();
-        this.updateMagicBar();
     }
 
     public void updateExperienceBar() {
@@ -80,17 +77,6 @@ public class SurvivorHud {
         int xpNeeded = survivor.getXpNeeded();
         int currentXp = survivor.getExperience();
         experienceBar.setProgress((double) currentXp / (double) xpNeeded);
-    }
-
-    public void updateMagicBar() {
-        BossBar magicBar = statBars.get("Magic");
-        if (!magicBar.getPlayers().contains(this.survivor.getPlayer())) {
-            magicBar.addPlayer(this.survivor.getPlayer());
-        }
-
-        int currentMagic = survivor.getCurrentMP();
-        int totalMagic = survivor.getMaxMP();
-        magicBar.setProgress((double) currentMagic / (double) totalMagic);
     }
 
     private void addHeader(String name, Objective obj, ChatColor color, int position) {

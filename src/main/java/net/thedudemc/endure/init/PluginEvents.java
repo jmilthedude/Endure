@@ -13,7 +13,6 @@ public class PluginEvents {
         registerEvent(new LootTableEvent());
         registerEvent(new ItemEvents());
         registerEvent(new EntityEvents());
-        registerEvent(new MagicEvents());
 
         Logger.info("Events registered.");
     }

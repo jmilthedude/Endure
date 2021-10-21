@@ -3,8 +3,6 @@ package net.thedudemc.endure.world.data;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.thedudemc.endure.Endure;
-import net.thedudemc.endure.order.Order;
-import net.thedudemc.endure.spells.Spell;
 
 import java.io.*;
 
@@ -13,8 +11,6 @@ public abstract class Data {
     private static final Gson GSON = new GsonBuilder()
             .excludeFieldsWithoutExposeAnnotation()
             .setPrettyPrinting()
-            .registerTypeAdapter(Spell.class, new Spell.SpellDeserializer())
-            .registerTypeAdapter(Order.class, new Order.OrderDeserializer())
             .create();
     protected String root = "plugins/" + Endure.getPluginName() + "/data/";
     protected String extension = ".json";

@@ -6,9 +6,6 @@ import net.thedudemc.endure.config.ThirstConfig;
 import net.thedudemc.endure.gui.SurvivorHud;
 import net.thedudemc.endure.init.PluginConfigs;
 import net.thedudemc.endure.init.PluginData;
-import net.thedudemc.endure.order.IMage;
-import net.thedudemc.endure.order.Order;
-import net.thedudemc.endure.spells.Spell;
 import net.thedudemc.endure.util.EndureUtilities;
 import net.thedudemc.endure.world.data.EntitiesData;
 import net.thedudemc.endure.world.data.SurvivorsData;
@@ -20,12 +17,11 @@ import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class SurvivorEntity implements IMage {
+public class SurvivorEntity {
 
     @Expose private final UUID uuid;
     @Expose private final String name;
@@ -33,14 +29,14 @@ public class SurvivorEntity implements IMage {
     @Expose private float thirst;
     @Expose private int experience;
     @Expose private double distanceTraveled;
-    @Expose private int currentMP;
-    @Expose private int maxMP;
-    @Expose private Order order;
-    @Expose private Spell currentSpell;
-    @Expose private List<Spell> learnedSpells = new ArrayList<>();
 
     private int xpNeeded;
     private boolean online;
+
+    private int slideCooldown = -1;
+    private int currentSlideTick = -1;
+    private boolean isSliding = false;
+    private double currentSlideReduction;
 
     private SurvivorHud hud;
     private Player player;
@@ -52,8 +48,6 @@ public class SurvivorEntity implements IMage {
         this.thirst = thirst;
         this.experience = experience;
         this.hud = new SurvivorHud(this);
-        this.maxMP = 100;
-        this.currentMP = this.maxMP;
     }
 
     public void tick() {
@@ -67,26 +61,11 @@ public class SurvivorEntity implements IMage {
 
         checkEntitiesRemoved();
 
-        if (this.getOrder() != null) this.getOrder().tick(this.getPlayer());
-
         if (slideCooldown > -1) {
             slideCooldown--;
         } else if (slideCooldown == -1) {
             handleSliding();
         }
-
-        if (this.getPlayer().getTicksLived() % 20 == 0) {
-            increaseMP(1);
-        }
-    }
-
-    public Order getOrder() {
-        return order;
-    }
-
-    public void setOrder(Order order) {
-        this.order = order;
-        this.markDirty();
     }
 
     public UUID getId() {
@@ -108,28 +87,6 @@ public class SurvivorEntity implements IMage {
 
     public void addLevel(int amount) {
         this.level += amount;
-        markDirty();
-    }
-
-    public float getThirst() {
-        return thirst;
-    }
-
-    public void setThirst(float thirst) {
-        this.thirst = thirst;
-        markDirty();
-    }
-
-    public void decreaseThirst(float amount) {
-        this.thirst = Math.min(thirst + amount, 1.0f);
-        if (this.thirst == 1.0f) this.distanceTraveled = 0;
-        this.getPlayer().setExp(thirst); // shows thirst level visually on exp bar
-        markDirty();
-    }
-
-    public void increaseThirst(double amount) {
-        this.thirst = (float) Math.max(this.thirst - amount, 0.0f);
-        this.getPlayer().setExp(thirst); // shows thirst level visually on exp bar
         markDirty();
     }
 
@@ -185,70 +142,7 @@ public class SurvivorEntity implements IMage {
         return online;
     }
 
-    @Override
-    public void learnSpell(Spell spell) {
-        this.learnedSpells.add(spell);
-        this.markDirty();
-    }
-
-    @Override
-    public int getCurrentMP() {
-        return currentMP;
-    }
-
-    @Override
-    public int getMaxMP() {
-        return maxMP;
-    }
-
-    @Override
-    public void decreaseMP(int amount) {
-        this.currentMP = Math.max(0, currentMP - amount);
-        this.hud.updateMagicBar();
-        this.markDirty();
-    }
-
-    @Override
-    public void increaseMP(int amount) {
-        this.currentMP = Math.min(currentMP + amount, maxMP);
-        this.hud.updateMagicBar();
-        this.markDirty();
-    }
-
-    @Override
-    public void addMaxMP(int amount) {
-        this.maxMP += amount;
-        this.markDirty();
-    }
-
-    @Override
-    public Spell getCurrentSpell() {
-        if (currentSpell == null && !learnedSpells.isEmpty()) {
-            currentSpell = learnedSpells.get(0);
-            this.markDirty();
-        }
-        return currentSpell;
-    }
-
-    @Override
-    public List<Spell> getLearnedSpells() {
-        return this.learnedSpells;
-    }
-
-    @Override
-    public void setCurrentSpell(Spell spell) {
-        if (getLearnedSpells().contains(spell)) {
-            this.currentSpell = spell;
-            this.markDirty();
-        }
-    }
-
     // --------------------- Sliding ---------------- //
-
-    private int slideCooldown = -1;
-    private int currentSlideTick = -1;
-    private boolean isSliding = false;
-    private double currentSlideReduction;
 
     public void setSliding() {
         if (!this.getPlayer().isOnGround()) return;
@@ -302,6 +196,8 @@ public class SurvivorEntity implements IMage {
     }
 
 
+    // --------------------- Thirst ---------------- //
+
     private void handleThirst() {
         Player p = this.getPlayer();
         Location location = p.getLocation();
@@ -325,6 +221,29 @@ public class SurvivorEntity implements IMage {
             causeThirstDamage();
         }
     }
+
+    public float getThirst() {
+        return thirst;
+    }
+
+    public void setThirst(float thirst) {
+        this.thirst = thirst;
+        markDirty();
+    }
+
+    public void decreaseThirst(float amount) {
+        this.thirst = Math.min(thirst + amount, 1.0f);
+        if (this.thirst == 1.0f) this.distanceTraveled = 0;
+        this.getPlayer().setExp(thirst); // shows thirst level visually on exp bar
+        markDirty();
+    }
+
+    public void increaseThirst(double amount) {
+        this.thirst = (float) Math.max(this.thirst - amount, 0.0f);
+        this.getPlayer().setExp(thirst); // shows thirst level visually on exp bar
+        markDirty();
+    }
+
 
     private void causeThirstDamage() {
         if (this.getPlayer().getTicksLived() % ((ThirstConfig) PluginConfigs.get("Thirst")).getThirstDamageInterval() == 0) {
